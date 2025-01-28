@@ -4,21 +4,28 @@
 , autoPatchelfHook
 , unzip
 , installShellFiles
+, makeWrapper
 , openssl
 , writeShellScript
 , curl
 , jq
 , common-updater-scripts
+, darwin
 }:
 
 stdenvNoCC.mkDerivation rec {
-  version = "1.1.34";
+  version = "1.2.0";
   pname = "bun";
 
   src = passthru.sources.${stdenvNoCC.hostPlatform.system} or (throw "Unsupported system: ${stdenvNoCC.hostPlatform.system}");
 
+  sourceRoot = {
+    aarch64-darwin = "bun-darwin-aarch64";
+    x86_64-darwin = "bun-darwin-x64-baseline";
+  }.${stdenvNoCC.hostPlatform.system} or null;
+
   strictDeps = true;
-  nativeBuildInputs = [ unzip installShellFiles ] ++ lib.optionals stdenvNoCC.hostPlatform.isLinux [ autoPatchelfHook ];
+  nativeBuildInputs = [ unzip installShellFiles makeWrapper ] ++ lib.optionals stdenvNoCC.hostPlatform.isLinux [ autoPatchelfHook ];
   buildInputs = [ openssl ];
 
   dontConfigure = true;
@@ -33,37 +40,52 @@ stdenvNoCC.mkDerivation rec {
     runHook postInstall
   '';
 
-  postPhases = lib.optionals (stdenvNoCC.buildPlatform.canExecute stdenvNoCC.hostPlatform) [ "postPatchelf" ];
-  postPatchelf = ''
-    completions_dir=$(mktemp -d)
+  postPhases = [ "postPatchelf"];
+  postPatchelf =
+    lib.optionalString stdenvNoCC.hostPlatform.isDarwin ''
+      wrapProgram $out/bin/bun \
+        --prefix DYLD_LIBRARY_PATH : ${lib.makeLibraryPath [ darwin.ICU ]}
+    ''
+    # We currently cannot generate completions for x86_64-darwin because bun requires avx support to run, which is:
+    # 1. Not currently supported by the version of Rosetta on our aarch64 builders
+    # 2. Is not correctly detected even on macOS 15+, where it is available through Rosetta
+    #
+    # The baseline builds are no longer an option because they too now require avx support.
+    + lib.optionalString
+      (
+        stdenvNoCC.buildPlatform.canExecute stdenvNoCC.hostPlatform
+        && !(stdenvNoCC.hostPlatform.isDarwin && stdenvNoCC.hostPlatform.isx86_64)
+      )
+      ''
+        completions_dir=$(mktemp -d)
 
-    SHELL="bash" $out/bin/bun completions $completions_dir
-    SHELL="zsh" $out/bin/bun completions $completions_dir
-    SHELL="fish" $out/bin/bun completions $completions_dir
+        SHELL="bash" $out/bin/bun completions $completions_dir
+        SHELL="zsh" $out/bin/bun completions $completions_dir
+        SHELL="fish" $out/bin/bun completions $completions_dir
 
-    installShellCompletion --name bun \
-      --bash $completions_dir/bun.completion.bash \
-      --zsh $completions_dir/_bun \
-      --fish $completions_dir/bun.fish
-  '';
+        installShellCompletion --name bun \
+          --bash $completions_dir/bun.completion.bash \
+          --zsh $completions_dir/_bun \
+          --fish $completions_dir/bun.fish
+      '';
 
   passthru = {
     sources = {
       "aarch64-darwin" = fetchurl {
         url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-darwin-aarch64.zip";
-        hash = "sha256-unFn4bexupfjtFA6Nxzi/vC1stzuBXYP5jPfwXbZDig=";
+        hash = "sha256-+nIXPLIiDQDi0mUP79wLWze/2Lsz2NZxtQ77QJwvV0U=";
       };
       "aarch64-linux" = fetchurl {
         url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-aarch64.zip";
-        hash = "sha256-BIYlEyRuyUdvipsCVEHTORlJoAnH+rv1ogv10JUHyOA=";
+        hash = "sha256-aF6IlwQM+qNtxkoz6EGevUqQa9A2v5DIz8vj1oBE1c8=";
       };
       "x86_64-darwin" = fetchurl {
         url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-darwin-x64-baseline.zip";
-        hash = "sha256-gpcDIY1IYHO0N9Quw79VonhFHdgb/NFZns2hGNuQe9g=";
+        hash = "sha256-6Yad3YhRz4IjK20uFdirUpazKAvNmtP55yMZgsMZXco=";
       };
       "x86_64-linux" = fetchurl {
         url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-        hash = "sha256-S8AA/1CWxTSHZ60E2ZNQXyEAOalYgCc6dte9CvD8Lx8=";
+        hash = "sha256-B0fpcBILE6HaU0G3UaXwrxd4vYr9cLXEWPr/+VzppFM=";
       };
     };
     updateScript = writeShellScript "update-bun" ''

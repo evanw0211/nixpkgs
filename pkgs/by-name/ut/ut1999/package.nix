@@ -1,5 +1,23 @@
-{ lib, stdenv, requireFile, autoPatchelfHook, undmg, fetchurl, makeDesktopItem, copyDesktopItems, imagemagick
-, runCommand, libgcc, wxGTK32, innoextract, libGL, SDL2, openal, libmpg123, libxmp }:
+{
+  lib,
+  stdenv,
+  requireFile,
+  autoPatchelfHook,
+  undmg,
+  fetchurl,
+  makeDesktopItem,
+  copyDesktopItems,
+  libarchive,
+  imagemagick,
+  runCommand,
+  libgcc,
+  wxGTK32,
+  libGL,
+  SDL2,
+  openal,
+  libmpg123,
+  libxmp,
+}:
 
 let
   version = "469d";
@@ -21,36 +39,37 @@ let
       hash = "sha256-TbhJbOH4E5WOb6XR9dmqLkXziK3/CzhNjd1ypBkkmvw=";
     };
   };
-  unpackGog = runCommand "ut1999-gog" {
-    src = requireFile rec {
-      name = "setup_ut_goty_2.0.0.5.exe";
-      hash = "sha256-TMJX1U2XZZxQYvK/GG0KjGlZVh0R5C2Pzy6sB/GSaAM=";
-      message = ''
-        Unreal Tournament 1999 requires the official GOG package, version 2.0.0.5.
-
-        Once you download the file, run the following command:
-
-        nix-prefetch-url file://\$PWD/${name}
+  unpackIso =
+    runCommand "ut1999-iso"
+      {
+        # This upload of the game is officially sanctioned by OldUnreal (who has received permission from Epic Games to link to archive.org) and the UT99.org community
+        # This is a copy of the original Unreal Tournament: Game of the Year Edition (also known as UT or UT99).
+        src = fetchurl {
+          url = "https://archive.org/download/ut-goty/UT_GOTY_CD1.iso";
+          hash = "sha256-4YSYTKiPABxd3VIDXXbNZOJm4mx0l1Fhte1yNmx0cE8=";
+        };
+        nativeBuildInputs = [ libarchive ];
+      }
+      ''
+        bsdtar -xvf "$src"
+        mkdir $out
+        cp -r Music Sounds Textures Maps $out
       '';
-    };
-
-    nativeBuildInputs = [ innoextract ];
-  } ''
-    innoextract --extract --exclude-temp "$src"
-    mkdir $out
-    cp -r app/* $out
-  '';
-  systemDir = {
-    x86_64-linux = "System64";
-    aarch64-linux = "SystemARM64";
-    x86_64-darwin = "System";
-    i686-linux = "System";
-  }.${stdenv.hostPlatform.system} or (throw "unsupported system: ${stdenv.hostPlatform.system}");
-in stdenv.mkDerivation {
+  systemDir =
+    {
+      x86_64-linux = "System64";
+      aarch64-linux = "SystemARM64";
+      x86_64-darwin = "System";
+      i686-linux = "System";
+    }
+    .${stdenv.hostPlatform.system} or (throw "unsupported system: ${stdenv.hostPlatform.system}");
+in
+stdenv.mkDerivation {
   name = "ut1999";
   inherit version;
   sourceRoot = ".";
-  src = srcs.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
+  src =
+    srcs.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
 
   buildInputs = [
     libgcc
@@ -63,44 +82,70 @@ in stdenv.mkDerivation {
     stdenv.cc.cc
   ];
 
-  nativeBuildInputs = lib.optionals stdenv.hostPlatform.isLinux [
-    copyDesktopItems
-    autoPatchelfHook
-    imagemagick
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    undmg
-  ];
+  nativeBuildInputs =
+    lib.optionals stdenv.hostPlatform.isLinux [
+      copyDesktopItems
+      autoPatchelfHook
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      undmg
+    ];
 
-  installPhase = let
-    outPrefix = if stdenv.hostPlatform.isDarwin then "$out/UnrealTournament.app/Contents/MacOS" else "$out";
-  in ''
-    runHook preInstall
+  installPhase =
+    let
+      outPrefix =
+        if stdenv.hostPlatform.isDarwin then "$out/UnrealTournament.app/Contents/MacOS" else "$out";
+    in
+    ''
+      runHook preInstall
 
-    mkdir -p $out/bin
-    cp -r ${if stdenv.hostPlatform.isDarwin then "UnrealTournament.app" else "./*"} $out
-    chmod -R 755 $out
-    cd ${outPrefix}
+      mkdir -p $out/bin
+      cp -r ${if stdenv.hostPlatform.isDarwin then "UnrealTournament.app" else "./*"} $out
+      chmod -R 755 $out
+      cd ${outPrefix}
 
-    rm -rf ./{Music,Sounds,Maps}
-    ln -s ${unpackGog}/{Music,Sounds,Maps} .
+      # NOTE: OldUnreal patch doesn't include these folders but could in the future
+      rm -rf ./{Music,Sounds,Maps}
+      ln -s ${unpackIso}/{Music,Sounds,Maps} .
 
-    cp -n ${unpackGog}/Textures/* ./Textures || true
-    cp -n ${unpackGog}/System/*.{u,int} ./System || true
-  '' + lib.optionalString (stdenv.hostPlatform.isLinux) ''
-    ln -s "$out/${systemDir}/ut-bin" "$out/bin/ut1999"
-    ln -s "$out/${systemDir}/ucc-bin" "$out/bin/ut1999-ucc"
+      # TODO: unpack compressed maps with ucc
 
-    convert "${unpackGog}/gfw_high.ico" "ut1999.png"
-    install -D ut1999-5.png "$out/share/icons/hicolor/256x256/apps/ut1999.png"
+      cp -n ${unpackIso}/Textures/* ./Textures || true
+      cp -n ${unpackIso}/System/*.{u,int} ./System || true
+    ''
+    + lib.optionalString (stdenv.hostPlatform.isLinux) ''
+      ln -s "$out/${systemDir}/ut-bin" "$out/bin/ut1999"
+      ln -s "$out/${systemDir}/ucc-bin" "$out/bin/ut1999-ucc"
 
-    # Remove bundled libraries to use native versions instead
-    rm $out/${systemDir}/libmpg123.so* \
-      $out/${systemDir}/libopenal.so* \
-      $out/${systemDir}/libSDL2* \
-      $out/${systemDir}/libxmp.so*
-  '' + ''
-    runHook postInstall
-  '';
+      install -D "${./ut1999.svg}" "$out/share/pixmaps/ut1999.svg"
+      ${imagemagick}/bin/magick -background none ${./ut1999.svg} -resize 16x16 ut1999_16x16.png
+      ${imagemagick}/bin/magick -background none ${./ut1999.svg} -resize 24x24 ut1999_24x24.png
+      ${imagemagick}/bin/magick -background none ${./ut1999.svg} -resize 32x32 ut1999_32x32.png
+      ${imagemagick}/bin/magick -background none ${./ut1999.svg} -resize 48x48 ut1999_48x48.png
+      ${imagemagick}/bin/magick -background none ${./ut1999.svg} -resize 64x64 ut1999_64x64.png
+      ${imagemagick}/bin/magick -background none ${./ut1999.svg} -resize 128x128 ut1999_128x128.png
+      ${imagemagick}/bin/magick -background none ${./ut1999.svg} -resize 192x192 ut1999_192x192.png
+      ${imagemagick}/bin/magick -background none ${./ut1999.svg} -resize 256x256 ut1999_256x256.png
+      install -D "ut1999_16x16.png" "$out/share/icons/hicolor/16x16/apps/ut1999.png"
+      install -D "ut1999_24x24.png" "$out/share/icons/hicolor/24x24/apps/ut1999.png"
+      install -D "ut1999_32x32.png" "$out/share/icons/hicolor/32x32/apps/ut1999.png"
+      install -D "ut1999_48x48.png" "$out/share/icons/hicolor/48x48/apps/ut1999.png"
+      install -D "ut1999_64x64.png" "$out/share/icons/hicolor/64x64/apps/ut1999.png"
+      install -D "ut1999_128x128.png" "$out/share/icons/hicolor/128x128/apps/ut1999.png"
+      install -D "ut1999_192x192.png" "$out/share/icons/hicolor/192x192/apps/ut1999.png"
+      install -D "ut1999_256x256.png" "$out/share/icons/hicolor/256x256/apps/ut1999.png"
+
+      # Remove bundled libraries to use native versions instead
+      rm $out/${systemDir}/libmpg123.so* \
+        $out/${systemDir}/libopenal.so* \
+        $out/${systemDir}/libSDL2* \
+        $out/${systemDir}/libxmp.so*
+        # NOTE: what about fmod?
+        #$out/${systemDir}/libfmod.so*
+    ''
+    + ''
+      runHook postInstall
+    '';
 
   # Bring in game's .so files into lookup. Otherwise game fails to start
   # as: `Object not found: Class Render.Render`

@@ -4,27 +4,26 @@
   buildPythonPackage,
   fetchFromGitHub,
   prettytable,
-  pythonOlder,
   setuptools,
 }:
 
 buildPythonPackage rec {
   pname = "aiosomecomfort";
-  version = "0.0.25";
+  version = "0.0.30";
   pyproject = true;
-
-  disabled = pythonOlder "3.7";
 
   src = fetchFromGitHub {
     owner = "mkmer";
     repo = "AIOSomecomfort";
-    rev = "refs/tags/${version}";
-    hash = "sha256-EmglZW9gzgswxoEtDT+evjn8N+3aPooYFudwAXP8XEE=";
+    tag = version;
+    hash = "sha256-1hKJG1F0tLHVvgaI3m82/11KUmm99zwn26z9G279Cig=";
   };
 
-  nativeBuildInputs = [ setuptools ];
+  build-system = [
+    setuptools
+  ];
 
-  propagatedBuildInputs = [
+  dependencies = [
     aiohttp
     prettytable
   ];

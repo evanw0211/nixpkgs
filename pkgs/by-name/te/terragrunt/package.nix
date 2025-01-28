@@ -1,18 +1,19 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
-, go-mockery
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  go-mockery,
 }:
 
 buildGoModule rec {
   pname = "terragrunt";
-  version = "0.68.7";
+  version = "0.72.2";
 
   src = fetchFromGitHub {
     owner = "gruntwork-io";
     repo = pname;
-    rev = "refs/tags/v${version}";
-    hash = "sha256-+66+qntwEILB0wbO/J5S6ED5W8JoE0C1KSGmGwIYGM0=";
+    tag = "v${version}";
+    hash = "sha256-SX7y4YLKehyz0vutNDWCBF9w20xW1EuDBaAkqENNTJ0=";
   };
 
   nativeBuildInputs = [ go-mockery ];
@@ -21,7 +22,7 @@ buildGoModule rec {
     make generate-mocks
   '';
 
-  vendorHash = "sha256-MLIj+/FUw7C4sOWby9nmcQFAvjVNvnf6bKs3pmlhzRQ=";
+  vendorHash = "sha256-a+nsbgAUgC7d8Nqexzubbx9CqK3o+TJbO+FJH3Fr2Js=";
 
   doCheck = false;
 
@@ -47,6 +48,10 @@ buildGoModule rec {
     description = "Thin wrapper for Terraform that supports locking for Terraform state and enforces best practices";
     mainProgram = "terragrunt";
     license = licenses.mit;
-    maintainers = with maintainers; [ jk qjoly kashw2 ];
+    maintainers = with maintainers; [
+      jk
+      qjoly
+      kashw2
+    ];
   };
 }

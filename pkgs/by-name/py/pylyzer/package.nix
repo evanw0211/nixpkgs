@@ -7,28 +7,23 @@
   python3,
   makeWrapper,
   writeScriptBin,
-  which,
-  nix-update-script,
   versionCheckHook,
+  nix-update-script,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "pylyzer";
-  version = "0.0.70";
+  version = "0.0.77";
 
   src = fetchFromGitHub {
     owner = "mtshiba";
     repo = "pylyzer";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-jj9r5npClLY9mhDHFI92825RYvwn6m9KlngfFL0bqCw=";
+    tag = "v${version}";
+    hash = "sha256-MlDW3dNe9fdOzWp38VkjgoiqOYgBF+ezwTQE0+6SXCc=";
   };
 
-  cargoLock = {
-    lockFile = ./Cargo.lock;
-    outputHashes = {
-      "rustpython-ast-0.4.0" = "sha256-RChZlXzdzyLp0Lb/LTLbWfbUzPDhmWkf0uVobflCKRk=";
-    };
-  };
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-bkYRPwiB2BN4WNZ0HcOBiDbFyidftbHWyIDvJasnePc=";
 
   nativeBuildInputs = [
     git
@@ -48,20 +43,6 @@ rustPlatform.buildRustPackage rec {
     mkdir -p $out/lib
     cp -r $HOME/.erg/ $out/lib/erg
   '';
-
-  nativeCheckInputs = [ which ];
-
-  checkFlags =
-    [
-      # this test causes stack overflow
-      # > thread 'exec_import' has overflowed its stack
-      "--skip=exec_import"
-    ]
-    ++ lib.optionals (stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isx86_64) [
-      # Dict({Str..Obj: Int}) does not implement Iterable(Str..Obj..Obj) and Indexable({"a"}..Obj, Int)
-      # https://github.com/mtshiba/pylyzer/issues/114
-      "--skip=exec_casting"
-    ];
 
   postFixup = ''
     wrapProgram $out/bin/pylyzer --set ERG_PATH $out/lib/erg

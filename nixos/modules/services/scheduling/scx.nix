@@ -2,6 +2,7 @@
   lib,
   pkgs,
   config,
+  utils,
   ...
 }:
 let
@@ -24,10 +25,10 @@ in
       type = lib.types.package;
       default = pkgs.scx.full;
       defaultText = lib.literalExpression "pkgs.scx.full";
-      example = lib.literalExpression "pkgs.scx.rustland";
+      example = lib.literalExpression "pkgs.scx.rustscheds";
       description = ''
         `scx` package to use. `scx.full`, which includes all schedulers, is the default.
-        You may choose a minimal package, such as `pkgs.scx.rustland`, if only one specific scheduler is needed.
+        You may choose a minimal package, such as `pkgs.scx.rustscheds`.
 
         ::: {.note}
         Overriding this does not change the default scheduler; you should set `services.scx.scheduler` for it.
@@ -39,15 +40,18 @@ in
       type = lib.types.enum [
         "scx_bpfland"
         "scx_central"
+        "scx_flash"
         "scx_flatcg"
         "scx_lavd"
         "scx_layered"
+        "scx_mitosis"
         "scx_nest"
         "scx_pair"
         "scx_qmap"
         "scx_rlfifo"
         "scx_rustland"
         "scx_rusty"
+        "scx_sdt"
         "scx_simple"
         "scx_userland"
       ];
@@ -61,6 +65,7 @@ in
 
     extraArgs = lib.mkOption {
       type = lib.types.listOf lib.types.singleLineStr;
+      default = [ ];
       example = [
         "--slice-us 5000"
         "--verbose"
@@ -90,9 +95,13 @@ in
 
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${lib.getExe' cfg.package cfg.scheduler} ${lib.concatStringsSep " " cfg.extraArgs}";
+        ExecStart = utils.escapeSystemdExecArgs (
+          [
+            (lib.getExe' cfg.package cfg.scheduler)
+          ]
+          ++ cfg.extraArgs
+        );
         Restart = "on-failure";
-        StandardError = "journal";
       };
 
       wantedBy = [ "multi-user.target" ];
