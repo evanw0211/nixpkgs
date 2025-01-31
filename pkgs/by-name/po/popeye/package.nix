@@ -1,23 +1,29 @@
-{ lib, buildGoModule, fetchFromGitHub, installShellFiles }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
+}:
 
 buildGoModule rec {
   pname = "popeye";
-  version = "0.21.5";
+  version = "0.21.7";
 
   src = fetchFromGitHub {
     rev = "v${version}";
     owner = "derailed";
     repo = "popeye";
-    sha256 = "sha256-2Ooh8yk6sD0VuHHxgkyIwqbJ9ynEUFDW3ti9ZzBOPX0=";
+    sha256 = "sha256-8X/L9je5TaxSx/RtPQlO/6CKd+zUIxFBfTDrNZAA2fU=";
   };
 
   ldflags = [
-    "-s" "-w"
+    "-s"
+    "-w"
     "-X github.com/derailed/popeye/cmd.version=${version}"
     "-X github.com/derailed/popeye/cmd.commit=${version}"
   ];
 
-  vendorHash = "sha256-uTuDI9cQFE5Fdf5wcCAwjO1p/niSNHnXmWF6QhLkDUk=";
+  vendorHash = "sha256-JX9afHS76kUkOdIZZP44UjcZt69YqzW/S1JKhGxLVOw=";
 
   nativeBuildInputs = [ installShellFiles ];
 

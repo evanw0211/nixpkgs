@@ -1,26 +1,72 @@
-{ lib, stdenv, fetchFromGitLab
-, meson, ninja, pkg-config, scdoc
-, mesa, lz4, zstd, ffmpeg, libva
+{
+  lib,
+  rustPlatform,
+  fetchFromGitLab,
+  meson,
+  ninja,
+  pkg-config,
+  scdoc,
+  libgbm,
+  lz4,
+  zstd,
+  ffmpeg,
+  cargo,
+  rustc,
+  vulkan-headers,
+  vulkan-loader,
+  shaderc,
+  llvmPackages,
+  autoPatchelfHook,
+  wayland-scanner,
+  rust-bindgen,
 }:
-
-stdenv.mkDerivation rec {
+llvmPackages.stdenv.mkDerivation rec {
   pname = "waypipe";
-  version = "0.9.1";
+  version = "0.10.2";
 
   src = fetchFromGitLab {
     domain = "gitlab.freedesktop.org";
     owner = "mstoeckl";
     repo = "waypipe";
-    rev = "v${version}";
-    hash = "sha256-4I8ohllhIA3/LNgFAKH5GwwHKO5QKNex0+Be0OOgR14=";
+    tag = "v${version}";
+    hash = "sha256-MTh3it+sJxd+vOTi9fVOxvlqlkgJAK56wel3xX0IzJE=";
+  };
+  cargoDeps = rustPlatform.fetchCargoTarball {
+    inherit pname version src;
+    hash = "sha256-15JmdpWXSyM0Hg3Babi4mKcnMhzx0fsWeFRROTQ/RLQ=";
   };
 
   strictDeps = true;
+  LIBCLANG_PATH = "${llvmPackages.libclang.lib}/lib";
   depsBuildBuild = [ pkg-config ];
-  nativeBuildInputs = [ meson ninja pkg-config scdoc ];
+
+  nativeBuildInputs = [
+    meson
+    ninja
+    pkg-config
+    scdoc
+    cargo
+    shaderc # for glslc
+    rustc
+    wayland-scanner
+    rustPlatform.cargoSetupHook
+    autoPatchelfHook
+    rust-bindgen
+  ];
+
   buildInputs = [
-    # Optional dependencies:
-    mesa lz4 zstd ffmpeg libva
+    libgbm
+    lz4
+    zstd
+    ffmpeg
+    vulkan-headers
+    vulkan-loader
+  ];
+
+  runtimeDependencies = [
+    libgbm
+    ffmpeg.lib
+    vulkan-loader
   ];
 
   meta = with lib; {

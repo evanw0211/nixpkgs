@@ -1,26 +1,27 @@
-{ lib
-, stdenv
-, buildGoModule
-, fetchFromGitHub
-, installShellFiles
-, buildPackages
-, coreutils
-, nix-update-script
-, nixosTests
+{
+  lib,
+  stdenv,
+  buildGoModule,
+  fetchFromGitHub,
+  installShellFiles,
+  buildPackages,
+  coreutils,
+  nix-update-script,
+  nixosTests,
 }:
 
 buildGoModule rec {
   pname = "sing-box";
-  version = "1.10.1";
+  version = "1.11.0";
 
   src = fetchFromGitHub {
     owner = "SagerNet";
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-WGlYaD4u9M1hfT+L6Adc5gClIYOkFsn4c9FAympmscQ=";
+    hash = "sha256-or3RklqfrDIC2ZHJ7jDs1y+118/OsJiRKyDt1NCWqfI=";
   };
 
-  vendorHash = "sha256-lyZ2Up1SSaRGvai0gGtq43MSdHfXc2PuxflSbASYZ4A=";
+  vendorHash = "sha256-NWHDEN7aQWR3DXp9nFNhxDXFMeBsCk8/ZzCcT/zgwmI=";
 
   tags = [
     "with_quic"
@@ -44,24 +45,28 @@ buildGoModule rec {
     "-X=github.com/sagernet/sing-box/constant.Version=${version}"
   ];
 
-  postInstall = let emulator = stdenv.hostPlatform.emulator buildPackages; in ''
-    installShellCompletion --cmd sing-box \
-      --bash <(${emulator} $out/bin/sing-box completion bash) \
-      --fish <(${emulator} $out/bin/sing-box completion fish) \
-      --zsh  <(${emulator} $out/bin/sing-box completion zsh )
+  postInstall =
+    let
+      emulator = stdenv.hostPlatform.emulator buildPackages;
+    in
+    ''
+      installShellCompletion --cmd sing-box \
+        --bash <(${emulator} $out/bin/sing-box completion bash) \
+        --fish <(${emulator} $out/bin/sing-box completion fish) \
+        --zsh  <(${emulator} $out/bin/sing-box completion zsh )
 
-    substituteInPlace release/config/sing-box{,@}.service \
-      --replace-fail "/usr/bin/sing-box" "$out/bin/sing-box" \
-      --replace-fail "/bin/kill" "${coreutils}/bin/kill"
-    install -Dm444 -t "$out/lib/systemd/system/" release/config/sing-box{,@}.service
-  '';
+      substituteInPlace release/config/sing-box{,@}.service \
+        --replace-fail "/usr/bin/sing-box" "$out/bin/sing-box" \
+        --replace-fail "/bin/kill" "${coreutils}/bin/kill"
+      install -Dm444 -t "$out/lib/systemd/system/" release/config/sing-box{,@}.service
+    '';
 
   passthru = {
     updateScript = nix-update-script { };
     tests = { inherit (nixosTests) sing-box; };
   };
 
-  meta = with lib;{
+  meta = with lib; {
     homepage = "https://sing-box.sagernet.org";
     description = "Universal proxy platform";
     license = licenses.gpl3Plus;

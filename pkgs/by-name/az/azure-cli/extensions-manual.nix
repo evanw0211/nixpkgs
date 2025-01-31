@@ -63,9 +63,9 @@
 
   confcom = mkAzExtension rec {
     pname = "confcom";
-    version = "1.0.0";
+    version = "1.2.1";
     url = "https://azcliprod.blob.core.windows.net/cli-extensions/confcom-${version}-py3-none-any.whl";
-    hash = "sha256-c4I+EJWKEUtKyoTDMLTevMZQxGNedMVoZ5tsMsNWQR0=";
+    hash = "sha256-D78WwrOKbc8RNAa9Q3wgZRjVOUy/012+KIlTtk5NeTM=";
     description = "Microsoft Azure Command-Line Tools Confidential Container Security Policy Generator Extension";
     nativeBuildInputs = [ autoPatchelfHook ];
     buildInputs = [ openssl_1_1 ];
@@ -150,4 +150,5 @@
   blockchain = throw "The 'blockchain' extension for azure-cli was deprecated upstream"; # Added 2024-04-26, https://github.com/Azure/azure-cli-extensions/pull/7370
   compute-diagnostic-rp = throw "The 'compute-diagnostic-rp' extension for azure-cli was deprecated upstream"; # Added 2024-11-12, https://github.com/Azure/azure-cli-extensions/pull/8240
   connection-monitor-preview = throw "The 'connection-monitor-preview' extension for azure-cli was deprecated upstream"; # Added 2024-11-02, https://github.com/Azure/azure-cli-extensions/pull/8194
+  deidservice = throw "The 'deidservice' extension for azure-cli was moved under healthcareapis"; # Added 2024-11-19, https://github.com/Azure/azure-cli-extensions/pull/8224
 }

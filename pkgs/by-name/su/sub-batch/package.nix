@@ -1,9 +1,8 @@
-{ stdenv
-, lib
-, fetchFromGitHub
-, rustPlatform
-, makeWrapper
-, alass
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  rustPlatform,
 }:
 
 rustPlatform.buildRustPackage rec {
@@ -18,12 +17,6 @@ rustPlatform.buildRustPackage rec {
   };
 
   cargoHash = "sha256-tOY3aLpU08Tg/IT+usS2DNO0Q1aD0bvURmNJmHcJkgI=";
-
-  nativeBuildInputs = [ makeWrapper ];
-
-  postInstall = ''
-    wrapProgram "$out/bin/sub-batch" --prefix PATH : "${lib.makeBinPath [ alass ]}"
-  '';
 
   meta = with lib; {
     description = "Match and rename subtitle files to video files and perform other batch operations on subtitle files";
