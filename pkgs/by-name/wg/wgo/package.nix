@@ -1,11 +1,12 @@
-{ lib
-, buildGoModule
-, fetchFromGitHub
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
 }:
 
 let
   pname = "wgo";
-  version = "0.5.6d";
+  version = "0.5.9";
 in
 buildGoModule {
   inherit pname version;
@@ -14,12 +15,15 @@ buildGoModule {
     owner = "bokwoon95";
     repo = "wgo";
     rev = "v${version}";
-    hash = "sha256-PzBje046mS844zpU5X1eoRcULJH8sh49yf8lrxeA764=";
+    hash = "sha256-IC8v4Hsnhp6RFoYE0eBsl3r9oQyUBoUfdkJKYIjCXlA=";
   };
 
   vendorHash = "sha256-w6UJxZToHbbQmuXkyqFzyssFcE+7uVNqOuIF/XKdEsU=";
 
-  ldflags = [ "-s" "-w" ];
+  ldflags = [
+    "-s"
+    "-w"
+  ];
 
   subPackages = [ "." ];
 

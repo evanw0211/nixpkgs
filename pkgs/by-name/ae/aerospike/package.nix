@@ -1,19 +1,37 @@
-{ lib, stdenv, fetchFromGitHub, autoconf, automake, cmake, libtool, openssl, zlib }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  autoconf,
+  automake,
+  cmake,
+  libtool,
+  openssl,
+  zlib,
+}:
 
 stdenv.mkDerivation rec {
   pname = "aerospike-server";
-  version = "7.2.0.1";
+  version = "8.0.0.2";
 
   src = fetchFromGitHub {
     owner = "aerospike";
     repo = "aerospike-server";
     rev = version;
-    hash = "sha256-PFLdESQ3eyVTu8FJSI/9FbjpA+721G+ok5/UE/5u/2E=";
+    hash = "sha256-Wto0C4q/x0VD9kHSOFuquh/vXC7pSEBFqpZJxRAa2Cg=";
     fetchSubmodules = true;
   };
 
-  nativeBuildInputs = [ autoconf automake cmake libtool ];
-  buildInputs = [ openssl zlib ];
+  nativeBuildInputs = [
+    autoconf
+    automake
+    cmake
+    libtool
+  ];
+  buildInputs = [
+    openssl
+    zlib
+  ];
 
   dontUseCmakeConfigure = true;
 

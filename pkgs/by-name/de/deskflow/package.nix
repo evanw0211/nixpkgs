@@ -29,23 +29,27 @@
   libsysprof-capture,
   lerc,
   doxygen,
+  writableTmpDirAsHomeHook,
 }:
+
 stdenv.mkDerivation rec {
   pname = "deskflow";
-  version = "1.17.1";
+  version = "1.19.0";
 
   src = fetchFromGitHub {
     owner = "deskflow";
     repo = "deskflow";
-    rev = "v${version}";
-    hash = "sha256-cEKG9MwENbZqrfRdwiZtRWmIfRndrWUoaZQ5O7YRpBs=";
+    tag = "v${version}";
+    hash = "sha256-Jj2BNqz4pIJ468pywJRKu6GjgGX31GZZtDLHgcvC3JE=";
   };
 
   postPatch = ''
     substituteInPlace src/lib/deskflow/unix/AppUtilUnix.cpp \
       --replace-fail "/usr/share/X11/xkb/rules/evdev.xml" "${xkeyboard_config}/share/X11/xkb/rules/evdev.xml"
     substituteInPlace src/lib/gui/tls/TlsCertificate.cpp \
-      --replace-fail "\"openssl\"" "\"${lib.getBin openssl}/bin/openssl\""
+      --replace-fail '"openssl"' '"${lib.getBin openssl}/bin/openssl"'
+    substituteInPlace deploy/linux/deploy.cmake \
+      --replace-fail 'message(FATAL_ERROR "Unable to read file /etc/os-release")' 'set(RELEASE_FILE_CONTENTS "")'
   '';
 
   nativeBuildInputs = [
@@ -87,22 +91,37 @@ stdenv.mkDerivation rec {
     lerc
   ];
 
-  postInstall = ''
-    substituteInPlace $out/share/applications/deskflow.desktop \
-        --replace-fail "Path=/usr/bin" "Path=$out/bin" \
-        --replace-fail "Exec=/usr/bin/deskflow" "Exec=deskflow"
-  '';
-
   qtWrapperArgs = [
     "--set QT_QPA_PLATFORM_PLUGIN_PATH ${qt6.qtwayland}/${qt6.qtbase.qtPluginPrefix}/platforms"
   ];
+
+  doCheck = true;
+
+  nativeCheckInputs = [ writableTmpDirAsHomeHook ];
+
+  checkPhase = ''
+    runHook preCheck
+
+    export QT_QPA_PLATFORM=offscreen
+    ./bin/unittests
+    ./bin/integtests
+
+    runHook postCheck
+  '';
 
   meta = {
     homepage = "https://github.com/deskflow/deskflow";
     description = "Share one mouse and keyboard between multiple computers on Windows, macOS and Linux";
     mainProgram = "deskflow";
-    maintainers = with lib.maintainers; [ aucub ];
-    license = lib.licenses.gpl2Plus;
+    maintainers = with lib.maintainers; [ ];
+    license = with lib; [
+      licenses.gpl2Plus
+      licenses.openssl
+    ];
     platforms = lib.platforms.linux;
+    knownVulnerabilities = [
+      "CVE-2021-42072"
+      "CVE-2021-42073"
+    ];
   };
 }

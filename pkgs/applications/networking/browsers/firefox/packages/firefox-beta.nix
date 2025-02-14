@@ -9,11 +9,11 @@
 
 buildMozillaMach rec {
   pname = "firefox-beta";
-  version = "133.0b1";
+  version = "135.0b9";
   applicationName = "Mozilla Firefox Beta";
   src = fetchurl {
     url = "mirror://mozilla/firefox/releases/${version}/source/firefox-${version}.source.tar.xz";
-    sha512 = "c4a85a72b2891c5b6c6e200cd7ef13abe0f5ad090f8ef1d8243a489791f3542b2cd390c141118c4745c4ca677d1e9bf1e564e4a45e066d27ed53e6bd92844727";
+    sha512 = "3007c2a8743e4444226e66f0c11f53f01255c09702deda7de83bbe134a19c324b8b49de78d3211b20bb82c7b2040127145d2e39ed8aa81c653ac4397c46476f6";
   };
 
   meta = {
@@ -22,7 +22,6 @@ buildMozillaMach rec {
     homepage = "http://www.mozilla.com/en-US/firefox/";
     maintainers = with lib.maintainers; [ jopejoe1 ];
     platforms = lib.platforms.unix;
-    badPlatforms = lib.platforms.darwin;
     broken = stdenv.buildPlatform.is32bit;
     # since Firefox 60, build on 32-bit platforms fails with "out of memory".
     # not in `badPlatforms` because cross-compilation on 64-bit machine might work.

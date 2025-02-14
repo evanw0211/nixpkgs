@@ -35,6 +35,9 @@ in
   name ? if args ? pname && args ? version then "${args.pname}-${args.version}" else "cargo-deps",
   hash ? (throw "fetchCargoVendor requires a `hash` value to be set for ${name}"),
   nativeBuildInputs ? [ ],
+  # This is mostly for breaking infinite recursion where dependencies
+  # of nix-prefetch-git use fetchCargoVendor.
+  allowGitDependencies ? true,
   ...
 }@args:
 
@@ -53,14 +56,22 @@ let
     {
       name = "${name}-vendor-staging";
 
-      nativeBuildInputs = [
-        fetchCargoVendorUtil
-        nix-prefetch-git
-        cacert
-      ] ++ nativeBuildInputs;
+      nativeBuildInputs =
+        [
+          fetchCargoVendorUtil
+          cacert
+        ]
+        ++ lib.optionals allowGitDependencies [
+          nix-prefetch-git
+        ]
+        ++ nativeBuildInputs;
 
       buildPhase = ''
         runHook preBuild
+
+        if [ -n "''${cargoRoot-}" ]; then
+          cd "$cargoRoot"
+        fi
 
         fetch-cargo-vendor-util create-vendor-staging ./Cargo.lock "$out"
 

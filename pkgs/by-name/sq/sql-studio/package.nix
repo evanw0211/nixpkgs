@@ -7,19 +7,19 @@
 }:
 let
   pname = "sql-studio";
-  version = "0.1.27";
+  version = "0.1.32";
 
   src = fetchFromGitHub {
     owner = "frectonz";
     repo = "sql-studio";
     rev = version;
-    hash = "sha256-iSvxdqarHX0AvkMSzL2JFOm32OyMwVKt+Gn7odgwalU=";
+    hash = "sha256-PDNTOzzoJ3a/OljnZux9ttts/ntwep2rC01IxIfMU1k=";
   };
 
   ui = buildNpmPackage {
     inherit version src;
     pname = "${pname}-ui";
-    npmDepsHash = "sha256-kGukH0PKF7MtIO5UH+55fddj6Tv2dNLmOC6oytEhP3c=";
+    npmDepsHash = "sha256-NCq8RuaC+dO6Zbgl1ucJxhJrVZ69Va3b2/gYn4fThAw=";
     sourceRoot = "${src.name}/ui";
     installPhase = ''
       cp -pr --reflink=auto -- dist "$out/"
@@ -29,7 +29,8 @@ in
 rustPlatform.buildRustPackage {
   inherit pname version src;
 
-  cargoHash = "sha256-BlYFbJEDap/k3oi9tFl4JpTyYh8ce7F3NIlOtOid59s=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-pvoQ73aW5XbnQJVCuV7lyrN3mg85Ye4913RzrA3S8J4=";
 
   preBuild = ''
     cp -pr --reflink=auto -- ${ui} ui/dist

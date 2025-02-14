@@ -14,20 +14,22 @@
 
 buildDotnetModule rec {
   pname = "galaxy-buds-client";
-  version = "5.1.0";
+  version = "5.1.2";
 
   src = fetchFromGitHub {
     owner = "ThePBone";
     repo = "GalaxyBudsClient";
     rev = version;
-    hash = "sha256-9m9H0T4rD6HIvb15h7+Q7SgLk0PkISkN8ojjh7nsiwA=";
+    hash = "sha256-ygxrtRapduvK7qAHZzdHnCijm8mcqOviMl2ddf9ge+Y=";
   };
 
   projectFile = [ "GalaxyBudsClient/GalaxyBudsClient.csproj" ];
-  nugetDeps = ./deps.nix;
+  nugetDeps = ./deps.json;
   dotnet-sdk = dotnetCorePackages.sdk_8_0;
   dotnet-runtime = dotnetCorePackages.runtime_8_0;
-  dotnetFlags = [ "-p:Runtimeidentifier=linux-x64" ];
+  dotnetFlags =
+    lib.optionals stdenv.hostPlatform.isx86_64 [ "-p:Runtimeidentifier=linux-x64" ]
+    ++ lib.optionals stdenv.hostPlatform.isAarch64 [ "-p:Runtimeidentifier=linux-arm64" ];
 
   nativeBuildInputs = [ makeWrapper copyDesktopItems ];
 

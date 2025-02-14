@@ -20,6 +20,14 @@ let
 
   wrapper = {
       extraName ? ""
+    # certain plugins need a custom configuration (available in passthru.initLua)
+    # to work with nix.
+    # if true, the wrapper automatically appends those snippets when necessary
+    , autoconfigure ? true
+
+    # append to PATH runtime deps of plugins
+    , autowrapRuntimeDeps ? true
+
     # should contain all args but the binary. Can be either a string or list
     , wrapperArgs ? []
     , withPython2 ? false
@@ -76,22 +84,26 @@ let
     pluginRC = lib.foldl (acc: p: if p.config != null then acc ++ [p.config] else acc) []  pluginsNormalized;
 
     # a limited RC script used only to generate the manifest for remote plugins
-    manifestRc = vimUtils.vimrcContent { customRC = ""; };
+    manifestRc = "";
     # we call vimrcContent without 'packages' to avoid the init.vim generation
-    neovimRcContent' = vimUtils.vimrcContent {
-      beforePlugins = "";
-      customRC = lib.concatStringsSep "\n" (pluginRC ++ lib.optional (neovimRcContent != null) neovimRcContent);
-      packages = null;
-    };
+    neovimRcContent' = lib.concatStringsSep "\n" (pluginRC ++ lib.optional (neovimRcContent != null) neovimRcContent);
 
     packpathDirs.myNeovimPackages = myVimPackage;
     finalPackdir = neovimUtils.packDir packpathDirs;
+
+    luaPluginRC = let
+      op = acc: normalizedPlugin:
+           acc ++ lib.optional (finalAttrs.autoconfigure && normalizedPlugin.plugin.passthru ? initLua) normalizedPlugin.plugin.passthru.initLua;
+      in
+        lib.foldl' op [] pluginsNormalized;
 
     rcContent = ''
       ${luaRcContent}
     '' + lib.optionalString (neovimRcContent' != null) ''
       vim.cmd.source "${writeText "init.vim" neovimRcContent'}"
-    '';
+    '' +
+      lib.concatStringsSep "\n" luaPluginRC
+    ;
 
     getDeps = attrname: map (plugin: plugin.${attrname} or (_: [ ]));
 
@@ -107,24 +119,21 @@ let
 
     wrapperArgsStr = if lib.isString wrapperArgs then wrapperArgs else lib.escapeShellArgs wrapperArgs;
 
-    generatedWrapperArgs = let
-      binPath = lib.makeBinPath (lib.optional finalAttrs.withRuby rubyEnv ++ lib.optional finalAttrs.withNodeJs nodejs);
-    in
-
-      # vim accepts a limited number of commands so we join them all
-          [
-            "--add-flags" ''--cmd "lua ${providerLuaRc}"''
-          ]
-          ++ lib.optionals (packpathDirs.myNeovimPackages.start != [] || packpathDirs.myNeovimPackages.opt != []) [
-            "--add-flags" ''--cmd "set packpath^=${finalPackdir}"''
-            "--add-flags" ''--cmd "set rtp^=${finalPackdir}"''
-          ]
-          ++ lib.optionals finalAttrs.withRuby [
-            "--set" "GEM_HOME" "${rubyEnv}/${rubyEnv.ruby.gemPath}"
-          ] ++ lib.optionals (binPath != "") [
-            "--suffix" "PATH" ":" binPath
-          ]
-          ;
+    generatedWrapperArgs =
+            [
+              # vim accepts a limited number of commands so we join all the provider ones
+              "--add-flags" ''--cmd "lua ${providerLuaRc}"''
+            ]
+            ++ lib.optionals (finalAttrs.packpathDirs.myNeovimPackages.start != [] || finalAttrs.packpathDirs.myNeovimPackages.opt != []) [
+              "--add-flags" ''--cmd "set packpath^=${finalPackdir}"''
+              "--add-flags" ''--cmd "set rtp^=${finalPackdir}"''
+            ]
+            ++ lib.optionals finalAttrs.withRuby [
+              "--set" "GEM_HOME" "${rubyEnv}/${rubyEnv.ruby.gemPath}"
+            ] ++ lib.optionals (finalAttrs.runtimeDeps != []) [
+              "--suffix" "PATH" ":" (lib.makeBinPath finalAttrs.runtimeDeps)
+            ]
+            ;
 
     providerLuaRc = neovimUtils.generateProviderRc {
       inherit (finalAttrs) withPython3 withNodeJs withPerl withRuby;
@@ -155,9 +164,21 @@ let
       __structuredAttrs = true;
       dontUnpack = true;
       inherit viAlias vimAlias withNodeJs withPython3 withPerl withRuby;
-      inherit wrapRc providerLuaRc packpathDirs;
+      inherit autoconfigure autowrapRuntimeDeps wrapRc providerLuaRc packpathDirs;
       inherit python3Env rubyEnv;
       inherit wrapperArgs generatedWrapperArgs;
+
+
+      runtimeDeps = let
+        op = acc: normalizedPlugin: acc ++ normalizedPlugin.plugin.runtimeDeps or [];
+        runtimeDeps = lib.foldl' op [] pluginsNormalized;
+      in
+             lib.optional finalAttrs.withRuby rubyEnv
+          ++ lib.optional finalAttrs.withNodeJs nodejs
+          ++ lib.optionals finalAttrs.autowrapRuntimeDeps runtimeDeps
+          ;
+
+
       luaRcContent = rcContent;
       # Remove the symlinks created by symlinkJoin which we need to perform
       # extra actions upon

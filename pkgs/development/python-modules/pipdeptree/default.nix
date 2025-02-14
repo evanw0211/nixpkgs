@@ -16,7 +16,7 @@
 
 buildPythonPackage rec {
   pname = "pipdeptree";
-  version = "2.23.4";
+  version = "2.25.0";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -24,8 +24,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "tox-dev";
     repo = "pipdeptree";
-    rev = "refs/tags/${version}";
-    hash = "sha256-wK3RaVq5PwDVAKotkDVEeAMImJxJVN1GceyoKBGBkOY=";
+    tag = version;
+    hash = "sha256-U1zr38eZks7uMXKgsbRZUZlDsxScUsKaq+scH/mLRG4=";
   };
 
   postPatch = ''

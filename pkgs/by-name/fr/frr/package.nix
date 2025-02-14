@@ -1,7 +1,6 @@
 { lib
 , stdenv
 , fetchFromGitHub
-, fetchpatch
 
 # build time
 , autoreconfHook
@@ -33,15 +32,9 @@
 , nettools
 , nixosTests
 
-# FRR's configure.ac gets SNMP options by executing net-snmp-config on the build host
-# This leads to compilation errors when cross compiling.
-# E.g. net-snmp-config for x86_64 does not return the ARM64 paths.
-#
-#   SNMP_LIBS="`${NETSNMP_CONFIG} --agent-libs`"
-#   SNMP_CFLAGS="`${NETSNMP_CONFIG} --base-cflags`"
-, snmpSupport ? stdenv.buildPlatform.canExecute stdenv.hostPlatform
 
-# other general options besides snmp support
+# general options
+, snmpSupport ? true
 , rpkiSupport ? true
 , numMultipath ? 64
 , watchfrrSupport ? true
@@ -81,27 +74,16 @@
 , ospfApi ? true
 }:
 
-lib.warnIf (!(stdenv.buildPlatform.canExecute stdenv.hostPlatform))
-  "cannot enable SNMP support due to cross-compilation issues with net-snmp-config"
-
 stdenv.mkDerivation (finalAttrs: {
   pname = "frr";
-  version = "10.1";
+  version = "10.2.1";
 
   src = fetchFromGitHub {
     owner = "FRRouting";
     repo = finalAttrs.pname;
     rev = "${finalAttrs.pname}-${finalAttrs.version}";
-    hash = "sha256-pmFdxL8QpyXvpX2YiSOZ+KIoNaj1OOH6/qnVAWZLE9s=";
+    hash = "sha256-TWqW6kI5dDl6IW2Ql6eeySDSyxp0fPgcJOOX1JxjAxs=";
   };
-
-  patches = [
-    (fetchpatch {
-      name = "CVE-2024-44070.patch";
-      url = "https://github.com/FRRouting/frr/commit/fea4ed5043b4a523921f970a39a565d2c1ca381f.patch";
-      hash = "sha256-X9FjQeOvo92+mL1z3u5W0LBhhePDAyhFAqh8sAtNNm8=";
-    })
-  ];
 
   nativeBuildInputs = [
     autoreconfHook
@@ -194,6 +176,9 @@ stdenv.mkDerivation (finalAttrs: {
     (lib.strings.enableFeature ospfApi "ospfapi")
     # Cumulus options
     (lib.strings.enableFeature cumulusSupport "cumulus")
+  ] ++ lib.optionals snmpSupport [
+    # Used during build for paths, `dev` has build shebangs so can be run during build.
+    "NETSNMP_CONFIG=${lib.getDev net-snmp}/bin/net-snmp-config"
   ];
 
   postPatch = ''

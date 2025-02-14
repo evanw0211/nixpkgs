@@ -1,42 +1,59 @@
-{ lib
-, stdenv
-, fetchCrate
-, rustPlatform
-, pkg-config
-, rustfmt
-, cacert
-, openssl
-, darwin
-, nix-update-script
-, testers
-, dioxus-cli
+{
+  lib,
+  stdenv,
+  fetchCrate,
+  rustPlatform,
+  pkg-config,
+  rustfmt,
+  cacert,
+  openssl,
+  nix-update-script,
+  testers,
+  dioxus-cli,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "dioxus-cli";
-  version = "0.5.7";
+  version = "0.6.2";
 
   src = fetchCrate {
     inherit pname version;
-    hash = "sha256-/LeMh5WX4dvkveu5w6qBQLbtoi5yUW6iad0YatA/tMQ=";
+    hash = "sha256-jUS/it2N5o5D7Jon0fKHWEt3f0wdtVgNIkqSNc7u830=";
   };
 
-  cargoHash = "sha256-D6y2NiFqSf0u6icSKCRZK7ycR+GswOX627M7PEy/D6U=";
-
-  nativeBuildInputs = [ pkg-config cacert ];
-  buildInputs = [ openssl ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk.frameworks.CoreServices
-    darwin.apple_sdk.frameworks.SystemConfiguration
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-izvo092FGZmci1cXLo+qhGlBh8W3A1TeBHrYXcjE6HU=";
+  cargoPatches = [
+    # TODO: Remove once https://github.com/DioxusLabs/dioxus/issues/3659 is fixed upstream.
+    ./fix-wasm-opt-target-dir.patch
   ];
 
+  buildFeatures = [
+    "no-downloads"
+    "optimizations"
+  ];
+
+  nativeBuildInputs = [
+    pkg-config
+    cacert
+  ];
+
+  buildInputs = [ openssl ];
+
   OPENSSL_NO_VENDOR = 1;
+
+  # wasm-opt-sys build.rs tries to verify C++17 support, but the check appears to be faulty.
+  postPatch = ''
+    substituteInPlace $cargoDepsCopy/wasm-opt-sys-*/build.rs \
+      --replace-fail 'check_cxx17_support()?;' '// check_cxx17_support()?;'
+  '';
 
   nativeCheckInputs = [ rustfmt ];
 
   checkFlags = [
     # requires network access
-    "--skip=server::web::proxy::test::add_proxy"
-    "--skip=server::web::proxy::test::add_proxy_trailing_slash"
+    "--skip=serve::proxy::test"
+    "--skip=wasm_bindgen::test"
   ];
 
   passthru = {
@@ -47,8 +64,15 @@ rustPlatform.buildRustPackage rec {
   meta = with lib; {
     homepage = "https://dioxuslabs.com";
     description = "CLI tool for developing, testing, and publishing Dioxus apps";
-    license = with licenses; [ mit asl20 ];
-    maintainers = with maintainers; [ xanderio cathalmullan ];
+    changelog = "https://github.com/DioxusLabs/dioxus/releases";
+    license = with licenses; [
+      mit
+      asl20
+    ];
+    maintainers = with maintainers; [
+      xanderio
+      cathalmullan
+    ];
     mainProgram = "dx";
   };
 }

@@ -9,12 +9,12 @@ let
   pname = "bililiverecorder";
 
   dotnet = with dotnetCorePackages; combinePackages [
-    runtime_6_0
-    aspnetcore_6_0
+    runtime_6_0-bin
+    aspnetcore_6_0-bin
   ];
 
-  version = "2.12.0";
-  hash = "sha256-2usiJTGA2FcJ9HBs3RDiARfC2yv/UqBgmT+z5F5Y7w0=";
+  version = "2.13.0";
+  hash = "sha256-4OQ2gut/eLk4CXRN5E3Z8XobXsT3bSmtmJEcHzHcz/0=";
 
 in
 stdenv.mkDerivation {

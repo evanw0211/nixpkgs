@@ -9,16 +9,17 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "rmpc";
-  version = "0.6.0";
+  version = "0.7.0";
 
   src = fetchFromGitHub {
     owner = "mierak";
     repo = "rmpc";
     rev = "v${version}";
-    hash = "sha256-hQhcNeGNxUxJ9hO/ukmt6V8V8zQHQLvejeu692pKTwg=";
+    hash = "sha256-IgkYUl1ccwzFgooqZGxmpJFzACEz3wmblostPsTnzSQ=";
   };
 
-  cargoHash = "sha256-Y+NmBAcp6lu1dmMo1Gpozmm/YvNYM7mUAvU2C7iO0ew=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-s8aXDDERy4IxUrXVEFMGny5B5HGE8xsi6I+b/HCHc6w=";
 
   nativeBuildInputs = [
     installShellFiles
@@ -53,6 +54,6 @@ rustPlatform.buildRustPackage rec {
       bloxx12
     ];
     mainProgram = "rmpc";
-    platforms = lib.platforms.linux;
+    platforms = lib.platforms.linux ++ lib.platforms.darwin;
   };
 }

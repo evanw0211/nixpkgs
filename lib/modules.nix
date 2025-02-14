@@ -364,10 +364,17 @@ let
         if class != null
         then
           m:
-            if m._class != null -> m._class == class
+            if m._class == null || m._class == class
             then m
             else
-              throw "The module ${m._file or m.key} was imported into ${class} instead of ${m._class}."
+              throw ''
+                The module `${m._file or m.key}` (class: ${lib.strings.escapeNixString m._class}) cannot be imported into a module evaluation that expects class ${lib.strings.escapeNixString class}.
+
+                Help:
+                - Ensure that you are importing the correct module.
+                - Verify that the module's `_class`, ${lib.strings.escapeNixString m._class} matches the expected `class` ${lib.strings.escapeNixString class}.
+                - If you are using a custom class, make sure it is correctly defined and used consistently across your modules.
+              ''
         else
           m: m;
 
@@ -751,17 +758,47 @@ let
           t' = opt.options.type;
           mergedType = t.typeMerge t'.functor;
           typesMergeable = mergedType != null;
-          typeSet = if (bothHave "type") && typesMergeable
-                       then { type = mergedType; }
-                       else {};
+
+          # TODO: Remove this when all downstream reliances of internals: 'functor.wrapped' are sufficiently migrated.
+          # A function that adds the deprecated wrapped message to a type.
+          addDeprecatedWrapped = t:
+            t // {
+              functor = t.functor // {
+                wrapped = t.functor.wrappedDeprecationMessage {
+                  inherit loc;
+                };
+              };
+            };
+
+          typeSet =
+            if opt.options ? type then
+              if res ? type then
+                if typesMergeable then
+                  {
+                    type =
+                      if mergedType ? functor.wrappedDeprecationMessage then
+                        addDeprecatedWrapped mergedType
+                      else
+                        mergedType;
+                  }
+                else
+                  # Keep in sync with the same error below!
+                  throw "The option `${showOption loc}' in `${opt._file}' is already declared in ${showFiles res.declarations}."
+              else if opt.options.type ? functor.wrappedDeprecationMessage then
+                { type = addDeprecatedWrapped opt.options.type; }
+              else
+                {}
+            else
+              {};
+
           bothHave = k: opt.options ? ${k} && res ? ${k};
       in
       if bothHave "default" ||
          bothHave "example" ||
          bothHave "description" ||
-         bothHave "apply" ||
-         (bothHave "type" && (! typesMergeable))
+         bothHave "apply"
       then
+        # Keep in sync with the same error above!
         throw "The option `${showOption loc}' in `${opt._file}' is already declared in ${showFiles res.declarations}."
       else
         let

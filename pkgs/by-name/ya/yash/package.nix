@@ -1,18 +1,28 @@
-{ stdenv, lib, fetchFromGitHub, gettext, ncurses, asciidoc }:
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  gettext,
+  ncurses,
+  asciidoc,
+}:
 
 stdenv.mkDerivation rec {
   pname = "yash";
-  version = "2.57";
+  version = "2.58";
 
   src = fetchFromGitHub {
     owner = "magicant";
     repo = pname;
     rev = version;
-    hash = "sha256-TqQWbwNk2P2vETJ2294bd689WBry0xRdz7xz/NnMBrk=";
+    hash = "sha256-d0Dt/+TxAtfKndXao6Cd9IEujHwi6H5HQjgY774UEFY=";
   };
 
   strictDeps = true;
-  nativeBuildInputs = [ asciidoc gettext ];
+  nativeBuildInputs = [
+    asciidoc
+    gettext
+  ];
   buildInputs = [ ncurses ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ gettext ];
 
   meta = with lib; {

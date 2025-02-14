@@ -6,14 +6,14 @@
 
 python3.pkgs.buildPythonApplication rec {
   pname = "sigma-cli";
-  version = "1.0.4";
+  version = "1.0.5";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "SigmaHQ";
     repo = "sigma-cli";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-bBKNKgS3V/sZ8lZMk2ZwTzOVaVecSR9GhNP2FNkWbw0=";
+    tag = "v${version}";
+    hash = "sha256-ywf7k2RsrAMUrDUv1nxTEixmP+NjtIyuBDhj4l9ZQCE=";
   };
 
   postPatch = ''
@@ -38,7 +38,10 @@ python3.pkgs.buildPythonApplication rec {
     pysigma-pipeline-windows
   ];
 
-  nativeCheckInputs = with python3.pkgs; [ pytestCheckHook ];
+  nativeCheckInputs = with python3.pkgs; [
+    pytest-cov-stub
+    pytestCheckHook
+  ];
 
   disabledTests = [
     "test_plugin_list"
@@ -47,6 +50,7 @@ python3.pkgs.buildPythonApplication rec {
     "test_plugin_install_notexisting"
     "test_plugin_install"
     "test_plugin_uninstall"
+    "test_backend_option_unknown_by_backend"
     # Tests require network access
     "test_check_with_issues"
     "test_plugin_show_identifier"

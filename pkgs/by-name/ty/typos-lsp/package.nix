@@ -6,16 +6,17 @@ rustPlatform.buildRustPackage rec {
   pname = "typos-lsp";
   # Please update the corresponding VSCode extension too.
   # See pkgs/applications/editors/vscode/extensions/tekumara.typos-vscode/default.nix
-  version = "0.1.30";
+  version = "0.1.33";
 
   src = fetchFromGitHub {
     owner = "tekumara";
     repo = "typos-lsp";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-MnN7cMbvQef3UEQzsrH6i0O+f1nnfHJVI8O8NmBUpuo=";
+    tag = "v${version}";
+    hash = "sha256-FunbE4HxDmugLmR2XwFFAjvNBTVbLAhiHtacxuPXMVE=";
   };
 
-  cargoHash = "sha256-F9e6GLWcZNJZo2kc8f2o1tCvv0JeAJnmltAuSTqQKwY=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-JFsDq9FaOvQmCCO2He2BIUJO6E8x5aMTBQy0B5kY4lQ=";
 
   # fix for compilation on aarch64
   # see https://github.com/NixOS/nixpkgs/issues/145726

@@ -2,24 +2,24 @@
   lib,
   authlib,
   buildPythonPackage,
+  deprecated,
   fetchFromGitHub,
   poetry-core,
   requests,
   pytest-cov-stub,
   pytestCheckHook,
-  simplejson,
 }:
 
 buildPythonPackage rec {
   pname = "pyvicare";
-  version = "2.36.0";
+  version = "2.41.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "openviess";
     repo = "PyViCare";
-    rev = "refs/tags/${version}";
-    hash = "sha256-WkdW1sSA/nVHK8Pp2sOkj3qYc8se4MT6WM4AoQvI5i8=";
+    tag = version;
+    hash = "sha256-iNv70l8xHxiF+ifKf0gkJ5W/aOuek/9QYCF8pm6xBiw=";
   };
 
   postPatch = ''
@@ -31,6 +31,7 @@ buildPythonPackage rec {
 
   dependencies = [
     authlib
+    deprecated
     requests
   ];
 

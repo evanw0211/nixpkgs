@@ -26,14 +26,14 @@
 }:
 
 let
-  version = "2.66.0";
+  version = "2.69.0";
 
   src = fetchFromGitHub {
     name = "azure-cli-${version}-src";
     owner = "Azure";
     repo = "azure-cli";
     rev = "azure-cli-${version}";
-    hash = "sha256-iWDKvtEvH6ZwK+5Zp9P2fgXP+4f4kXH+xXfBkYmsPl0=";
+    hash = "sha256-bn6x01fVfn/jNWAN3q2oI3CHt5h575lV9YZp0pgBUxg=";
   };
 
   # put packages that needs to be overridden in the py package scope
@@ -54,6 +54,9 @@ let
       {
         format = "wheel";
         src = fetchurl { inherit url hash; };
+        passthru = {
+          updateScript = extensionUpdateScript { inherit pname; };
+        } // args.passthru or { };
         meta = {
           inherit description;
           inherit (azure-cli.meta) platforms maintainers;
@@ -67,13 +70,24 @@ let
         "url"
         "hash"
         "description"
+        "passthru"
         "meta"
       ])
     );
+  # Update script for azure cli extensions. Currently only works for manual extensions.
+  extensionUpdateScript =
+    { pname }:
+    [
+      "${lib.getExe azure-cli.extensions-tool}"
+      "--cli-version"
+      "${azure-cli.version}"
+      "--extension"
+      "${pname}"
+    ];
 
-  extensions-generated = lib.mapAttrs (name: ext: mkAzExtension ext) (
-    builtins.fromJSON (builtins.readFile ./extensions-generated.json)
-  );
+  extensions-generated = lib.mapAttrs (
+    name: ext: mkAzExtension (ext // { passthru.updateScript = [ ]; })
+  ) (builtins.fromJSON (builtins.readFile ./extensions-generated.json));
   extensions-manual = callPackages ./extensions-manual.nix {
     inherit mkAzExtension;
     python3Packages = python3.pkgs;
@@ -148,6 +162,7 @@ py.pkgs.toPythonApplication (
         azure-mgmt-containerservice
         azure-mgmt-cosmosdb
         azure-mgmt-databoxedge
+        azure-mgmt-datalake-store
         azure-mgmt-datamigration
         azure-mgmt-devtestlabs
         azure-mgmt-dns
@@ -160,7 +175,6 @@ py.pkgs.toPythonApplication (
         azure-mgmt-iothub
         azure-mgmt-iothubprovisioningservices
         azure-mgmt-keyvault
-        azure-mgmt-kusto
         azure-mgmt-loganalytics
         azure-mgmt-managedservices
         azure-mgmt-managementgroups
@@ -250,6 +264,7 @@ py.pkgs.toPythonApplication (
         # remove garbage
         rm $out/bin/az.bat
         rm $out/bin/az.completion.sh
+        rm $out/bin/azps.ps1
       '';
 
     # wrap the executable so that the python packages are available
@@ -313,7 +328,6 @@ py.pkgs.toPythonApplication (
       "azure.mgmt.iothub"
       "azure.mgmt.iothubprovisioningservices"
       "azure.mgmt.keyvault"
-      "azure.mgmt.kusto"
       "azure.mgmt.loganalytics"
       "azure.mgmt.managedservices"
       "azure.mgmt.managementgroups"
@@ -406,7 +420,6 @@ py.pkgs.toPythonApplication (
           }
           ''
             black --check --diff $src
-            # mypy --strict $src
             isort --profile=black --check --diff $src
 
             install -Dm755 $src $out/bin/extensions-tool

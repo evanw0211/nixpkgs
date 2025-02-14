@@ -1,4 +1,11 @@
-{ lib, stdenv, fetchFromGitHub, rustPlatform, installShellFiles, libiconv }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  rustPlatform,
+  installShellFiles,
+  libiconv,
+}:
 
 rustPlatform.buildRustPackage rec {
   pname = "fselect";
@@ -11,7 +18,8 @@ rustPlatform.buildRustPackage rec {
     sha256 = "sha256-gEiKv1YbNNWexNfzUULbe0fT0ueJ9TJojhBHp31i6OY=";
   };
 
-  cargoHash = "sha256-eqzqIyQHHklxo3aojCvY06TUPSqChoz6yZ2zzpgRNqs=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-/FBEv1jDlYrx06Ia/lF3Vcjnl5nWg0aEQefY67kh9Bw=";
 
   nativeBuildInputs = [ installShellFiles ];
   buildInputs = lib.optional stdenv.hostPlatform.isDarwin libiconv;
@@ -23,7 +31,10 @@ rustPlatform.buildRustPackage rec {
   meta = with lib; {
     description = "Find files with SQL-like queries";
     homepage = "https://github.com/jhspetersson/fselect";
-    license = with licenses; [ asl20 mit ];
+    license = with licenses; [
+      asl20
+      mit
+    ];
     maintainers = with maintainers; [ Br1ght0ne ];
     mainProgram = "fselect";
   };

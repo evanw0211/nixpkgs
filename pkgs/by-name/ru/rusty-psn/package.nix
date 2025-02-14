@@ -1,18 +1,19 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
-, makeDesktopItem
-, copyDesktopItems
-, pkg-config
-, cmake
-, fontconfig
-, glib
-, gtk3
-, freetype
-, openssl
-, xorg
-, libGL
-, withGui ? false # build GUI version
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  makeDesktopItem,
+  copyDesktopItems,
+  pkg-config,
+  cmake,
+  fontconfig,
+  glib,
+  gtk3,
+  freetype,
+  openssl,
+  xorg,
+  libGL,
+  withGui ? false, # build GUI version
 }:
 
 rustPlatform.buildRustPackage rec {
@@ -28,43 +29,50 @@ rustPlatform.buildRustPackage rec {
 
   cargoPatches = [ ./fix-cargo-lock.patch ];
 
-  cargoHash = "sha256-8J92WtMmCTnghPqSmNYhG3IVdmpHsHEH7Fkod0UYKJU=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-FhY4Yf7e0Kk/a1ngPUQcd6R6MDpoyt/2WJhcCeTjKJE=";
 
   # Tests require network access
   doCheck = false;
 
-  nativeBuildInputs = [
-    pkg-config
-  ] ++ lib.optionals withGui [
-    copyDesktopItems
-    cmake
-  ];
+  nativeBuildInputs =
+    [
+      pkg-config
+    ]
+    ++ lib.optionals withGui [
+      copyDesktopItems
+      cmake
+    ];
 
-  buildInputs = [
-    openssl
-  ] ++ lib.optionals withGui [
-    fontconfig
-    glib
-    gtk3
-    freetype
-    openssl
-    xorg.libxcb
-    xorg.libX11
-    xorg.libXcursor
-    xorg.libXrandr
-    xorg.libXi
-    xorg.libxcb
-    libGL
-  ];
+  buildInputs =
+    [
+      openssl
+    ]
+    ++ lib.optionals withGui [
+      fontconfig
+      glib
+      gtk3
+      freetype
+      openssl
+      xorg.libxcb
+      xorg.libX11
+      xorg.libXcursor
+      xorg.libXrandr
+      xorg.libXi
+      xorg.libxcb
+      libGL
+    ];
 
   buildNoDefaultFeatures = true;
   buildFeatures = [ (if withGui then "egui" else "cli") ];
 
-  postFixup = ''
-    patchelf --set-rpath "${lib.makeLibraryPath buildInputs}" $out/bin/rusty-psn
-  '' + lib.optionalString withGui ''
-    mv $out/bin/rusty-psn $out/bin/rusty-psn-gui
-  '';
+  postFixup =
+    ''
+      patchelf --set-rpath "${lib.makeLibraryPath buildInputs}" $out/bin/rusty-psn
+    ''
+    + lib.optionalString withGui ''
+      mv $out/bin/rusty-psn $out/bin/rusty-psn-gui
+    '';
 
   desktopItem = lib.optionalString withGui (makeDesktopItem {
     name = "rusty-psn";

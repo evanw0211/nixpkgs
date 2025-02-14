@@ -11,10 +11,11 @@
   libglvnd,
   libxkbcommon,
   makeShellWrapper,
-  mesa,
+  libgbm,
   musl,
   nss,
   patchelf,
+  openssl,
   stdenv,
   xorg,
 }:
@@ -41,14 +42,14 @@ stdenv.mkDerivation {
     [ makeShellWrapper ]
     ++ lib.optionals stdenv.hostPlatform.isLinux [
       alsa-lib
-      dpkg
       gtk3
       libglvnd
       libxkbcommon
-      mesa
+      libgbm
       musl
       nss
       stdenv.cc.cc
+      openssl
       xorg.libX11
       xorg.libXcomposite
       xorg.libXdamage
@@ -62,6 +63,7 @@ stdenv.mkDerivation {
   nativeBuildInputs =
     lib.optionals stdenv.hostPlatform.isLinux [
       autoPatchelfHook
+      dpkg
     ]
     ++ lib.optionals stdenv.hostPlatform.isDarwin [
       _7zz
@@ -71,8 +73,6 @@ stdenv.mkDerivation {
     # Needed to fix the "Zygote could not fork" error.
     (lib.getLib systemd)
   ];
-
-  postUnpack = lib.optionalString stdenv.hostPlatform.isLinux ''dpkg-deb --fsys-tarfile "$src" | tar -x --no-same-owner'';
 
   installPhase =
     if stdenv.hostPlatform.isDarwin then

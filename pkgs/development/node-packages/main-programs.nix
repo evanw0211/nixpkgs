@@ -32,8 +32,6 @@
   graphql-language-service-cli = "graphql-lsp";
   grunt-cli = "grunt";
   gulp-cli = "gulp";
-  kaput-cli = "kaput";
-  less = "lessc";
   localtunnel = "lt";
   lua-fmt = "luafmt";
   parsoid = "parse.js";
@@ -46,7 +44,6 @@
   purs-tidy = "purs-tidy";
   purty = "purty";
   pscid = "pscid";
-  remod-cli = "remod";
   vscode-json-languageserver = "vscode-json-languageserver";
   webtorrent-cli = "webtorrent";
 }

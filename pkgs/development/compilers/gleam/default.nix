@@ -1,33 +1,45 @@
-{ lib
-, stdenv
-, rustPlatform
-, fetchFromGitHub
-, git
-, pkg-config
-, openssl
-, erlang
-, Security
-, nix-update-script
-, SystemConfiguration
+{
+  lib,
+  stdenv,
+  rustPlatform,
+  fetchFromGitHub,
+  git,
+  pkg-config,
+  openssl,
+  erlang,
+  Security,
+  nix-update-script,
+  SystemConfiguration,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "gleam";
-  version = "1.5.1";
+  version = "1.8.1";
 
   src = fetchFromGitHub {
     owner = "gleam-lang";
     repo = pname;
-    rev = "refs/tags/v${version}";
-    hash = "sha256-4/NDZGq62M0tdWerIkmoYS0WHC06AV8c9vlo/6FhsAo=";
+    tag = "v${version}";
+    hash = "sha256-Qt2VQhbiNNORrGUR5LHeBb0q/EIqPNPz/adljj6xpS4=";
   };
 
-  nativeBuildInputs = [ git pkg-config ];
+  nativeBuildInputs = [
+    git
+    pkg-config
+  ];
 
-  buildInputs = [ openssl erlang ] ++
-    lib.optionals stdenv.hostPlatform.isDarwin [ Security SystemConfiguration ];
+  buildInputs =
+    [
+      openssl
+      erlang
+    ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      Security
+      SystemConfiguration
+    ];
 
-  cargoHash = "sha256-B8tCVkubP04gAHKQC0idR5AjpVHG/kCXvPCfwKCuaSo=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-7oawxv1s8BJsOxGuADKjf4XqJ/UT+zYOrPQCbQljArM=";
 
   passthru.updateScript = nix-update-script { };
 

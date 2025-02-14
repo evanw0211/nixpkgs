@@ -1,10 +1,11 @@
-{ lib
-, fetchFromGitea
-, rustPlatform
-, nix-update-script
-, imagemagick
-, makeWrapper
-, installShellFiles
+{
+  lib,
+  fetchFromGitea,
+  rustPlatform,
+  nix-update-script,
+  imagemagick,
+  makeWrapper,
+  installShellFiles,
 }:
 let
   version = "3.1.0";
@@ -21,9 +22,13 @@ rustPlatform.buildRustPackage {
     hash = "sha256-Tad+zyhmTr734GEW0A4SNrfWzqcL0gLFsM6MoMrV17k=";
   };
 
-  cargoHash = "sha256-SEaq0qeWuDeIeCqz9imb5nV4WK44CF5wIwG62nhyqlU=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-Kd+03yERyTxBJ5GSVQQqY4PxV7DfE1REeh43RpSfJNo=";
 
-  nativeBuildInputs = [ makeWrapper installShellFiles ];
+  nativeBuildInputs = [
+    makeWrapper
+    installShellFiles
+  ];
 
   postInstall = ''
     installManPage man/wallust*
@@ -44,7 +49,10 @@ rustPlatform.buildRustPackage {
     description = "Better pywal";
     homepage = "https://codeberg.org/explosion-mental/wallust";
     license = lib.licenses.mit;
-    maintainers = with lib.maintainers; [ onemoresuza iynaix ];
+    maintainers = with lib.maintainers; [
+      onemoresuza
+      iynaix
+    ];
     downloadPage = "https://codeberg.org/explosion-mental/wallust/releases/tag/${version}";
     mainProgram = "wallust";
   };

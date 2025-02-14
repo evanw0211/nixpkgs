@@ -5,7 +5,6 @@
   fetchFromGitHub,
   ntpd-rs,
   installShellFiles,
-  darwin,
   pandoc,
   nixosTests,
   nix-update-script,
@@ -14,20 +13,18 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "ntpd-rs";
-  version = "1.3.0";
+  version = "1.4.0";
 
   src = fetchFromGitHub {
     owner = "pendulum-project";
     repo = "ntpd-rs";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-0fbl50kugqYHeS+9a/kCkwy1wPDqDCYwPIGZ37NFa/Y=";
+    tag = "v${version}";
+    hash = "sha256-usLtf4qwKkn+lEYSQWCa1ap9h/52YYMVFDkpFJVD00k=";
   };
 
-  cargoHash = "sha256-9HLbGC6j0Wq/lG//CeEAfnYzlGG14CnDpmluL1moHWQ=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-Zm7uRdgX9zgLeVdcSdp3z+NjyD9HB0GHX37qjgjSatI=";
 
-  buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk_11_0.frameworks.Security
-  ];
   nativeBuildInputs = [
     pandoc
     installShellFiles

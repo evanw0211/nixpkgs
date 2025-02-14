@@ -12,7 +12,7 @@
 
 buildPythonPackage rec {
   pname = "lingva";
-  version = "5.0.4";
+  version = "5.0.5";
   pyproject = true;
 
   disabled = pythonOlder "3.7";
@@ -20,8 +20,8 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "vacanza";
     repo = "lingva";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-2h3J+pvXRmjD7noMA7Cyu5Tf/9R8Akv08A7xJMLVD08=";
+    tag = "v${version}";
+    hash = "sha256-zKEGRLaqQSqbOP4ZAidIxMgGQbDIC9pAGfjWqoQTouc=";
   };
 
   build-system = [ setuptools ];

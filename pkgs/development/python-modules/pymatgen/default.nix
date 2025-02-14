@@ -31,7 +31,7 @@
 
 buildPythonPackage rec {
   pname = "pymatgen";
-  version = "2024.9.17.1";
+  version = "2025.1.9";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -39,14 +39,9 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "materialsproject";
     repo = "pymatgen";
-    rev = "refs/tags/v${version}";
-    hash = "sha256-o76bGItldcLfgZ5KDw2uL0GJvyljQJEwISR0topVR44=";
+    tag = "v${version}";
+    hash = "sha256-mbXnuqgve8YjktJ2PSaMNk8ADioaGe+W12bYm/chpzE=";
   };
-
-  prePatch = ''
-    # Upstream switched to building against numpy2 but should still be compatible with numpy1
-    substituteInPlace pyproject.toml --replace-fail "numpy>=2.1.0" "numpy>=1.26.0"
-  '';
 
   build-system = [ setuptools ];
 
@@ -97,7 +92,7 @@ buildPythonPackage rec {
   meta = with lib; {
     description = "Robust materials analysis code that defines core object representations for structures and molecules";
     homepage = "https://pymatgen.org/";
-    changelog = "https://github.com/materialsproject/pymatgen/releases/tag/v${version}";
+    changelog = "https://github.com/materialsproject/pymatgen/releases/tag/${src.tag}";
     license = licenses.mit;
     maintainers = with maintainers; [ psyanticy ];
   };

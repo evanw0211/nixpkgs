@@ -1,14 +1,15 @@
-{ lib
-, stdenv
-, rustPlatform
-, fetchFromGitHub
-, pkg-config
-, openssl
-, rocksdb_8_3
-, testers
-, surrealdb
-, darwin
-, protobuf
+{
+  lib,
+  stdenv,
+  rustPlatform,
+  fetchFromGitHub,
+  pkg-config,
+  openssl,
+  rocksdb_8_3,
+  testers,
+  surrealdb,
+  darwin,
+  protobuf,
 }:
 
 let
@@ -25,7 +26,8 @@ rustPlatform.buildRustPackage rec {
     hash = "sha256-kTTZx/IXXJrkC0qm4Nx0hYPbricNjwFshCq0aFYCTo0=";
   };
 
-  cargoHash = "sha256-K62RqJqYyuAPwm8zLIiASH7kbw6raXS6ZzINMevWav0=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-yJfpxklHD/qbEoUS4OMAzlc9/0d/iW3EABU6AK/Maqo=";
 
   # error: linker `aarch64-linux-gnu-gcc` not found
   postPatch = ''
@@ -45,8 +47,9 @@ rustPlatform.buildRustPackage rec {
     rustPlatform.bindgenHook
   ];
 
-  buildInputs = [ openssl ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [ darwin.apple_sdk.frameworks.SystemConfiguration ];
+  buildInputs = [
+    openssl
+  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [ darwin.apple_sdk.frameworks.SystemConfiguration ];
 
   doCheck = false;
 
@@ -69,6 +72,10 @@ rustPlatform.buildRustPackage rec {
     homepage = "https://surrealdb.com/";
     mainProgram = "surreal";
     license = licenses.bsl11;
-    maintainers = with maintainers; [ sikmir happysalada siriobalmelli ];
+    maintainers = with maintainers; [
+      sikmir
+      happysalada
+      siriobalmelli
+    ];
   };
 }

@@ -15,6 +15,7 @@ cosmo,,,,,,
 coxpcall,,,,1.17.0-1,,
 cqueues,,,,,,vcunat
 cyan,,,,,,
+datafile,,,,,,
 digestif,,,,,5.3,
 dkjson,,,,,,
 fennel,,,,,,misterio77
@@ -100,6 +101,7 @@ luaunbound,,,,,,
 luaunit,,,,,,lockejan
 luautf8,,,,,,pstn
 luazip,,,,,,
+lusc_luv,,,,,,
 lush.nvim,,,https://luarocks.org/dev,,,teto
 luuid,,,,20120509-2,,
 luv,,,,1.48.0-2,,
@@ -119,7 +121,10 @@ neotest,,,,,,mrcjkb
 nlua,,,,,,teto
 nui.nvim,,,,,,mrcjkb
 nvim-cmp,https://raw.githubusercontent.com/hrsh7th/nvim-cmp/main/nvim-cmp-scm-1.rockspec,,,,,
+nvim-dbee,,,,,,perchun
 nvim-nio,,,,,,mrcjkb
+orgmode,,,,,,
+papis-nvim,,,,,,GaetanLepage
 pathlib.nvim,,,,,,
 penlight,,,,,,alerque
 plenary.nvim,https://raw.githubusercontent.com/nvim-lua/plenary.nvim/master/plenary.nvim-scm-1.rockspec,,,,5.1,
@@ -138,13 +143,15 @@ sqlite,,,,,,
 std._debug,,,,,,
 std.normalize,,,,,,
 stdlib,,,,41.2.2,,vyp
-teal-language-server,,,http://luarocks.org/dev,,,
+teal-language-server,,,,,,
 telescope-manix,,,,,,
 telescope.nvim,,,,,5.1,
 tiktoken_core,,,,,,natsukium
-tl,,,,0.15.3-1,,mephistophiles
+tl,,,,,,mephistophiles
 toml-edit,,,,,5.1,mrcjkb
+tree-sitter-http,,,,0.0.33-1,,
 tree-sitter-norg,,,,,5.1,mrcjkb
+tree-sitter-orgmode,,,,,,
 vstruct,,,,,,
 vusted,,,,,,figsoda
 xml2lua,,,,,,teto

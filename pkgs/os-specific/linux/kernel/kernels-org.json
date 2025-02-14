@@ -1,34 +1,38 @@
 {
     "testing": {
-        "version": "6.12-rc7",
-        "hash": "sha256:1rsglb7zwbn4f6wv4g95jl8ra1wbs03k7xyfdlmwzl3vgzx3bnzv"
+        "version": "6.14-rc2",
+        "hash": "sha256:1i7zxjz0vckl31cb6anb0b9m0k7l3y2gk6r5y6in41p8mjf4rrpk"
     },
     "6.1": {
-        "version": "6.1.118",
-        "hash": "sha256:0k12d4l03ziiba1b4f6jfxv5ir0lrd6kshlasr62rhv1f6yq81q1"
+        "version": "6.1.128",
+        "hash": "sha256:1wshgkgcxaf4mnm4ngngsj8gq1cg8kq56f5kqsdfcw0m339nfkc7"
     },
     "5.15": {
-        "version": "5.15.173",
-        "hash": "sha256:1a3x3ld6g7ny0hdfqfvj5j2i5sx5l5p236pdnsr0icn9ri3jljwa"
+        "version": "5.15.178",
+        "hash": "sha256:0hkw2l4gr5m6jw2adxcgm2sb6kl0w51r6s4hcbn6rlm4bvmzgsgg"
     },
     "5.10": {
-        "version": "5.10.230",
-        "hash": "sha256:0isbb0ixqg4yzlh3lmdvnax4m1ikf2q4wk0b9vgqc63p7gpm066d"
+        "version": "5.10.234",
+        "hash": "sha256:1rgb4v6dvqlw1mgzsli0hxaj2d5d4m1nylgcrwm4bkpiwbzc95wm"
     },
     "5.4": {
-        "version": "5.4.286",
-        "hash": "sha256:0z48n7vahg318bgkccy8xqgl87vfb8zmn995cqh7z38fvzrm81qq"
+        "version": "5.4.290",
+        "hash": "sha256:0mm4q8f6kbqddy4zaxjf5xyqpnla5qprvsf7v3vq01gmlzr3rivc"
     },
     "6.6": {
-        "version": "6.6.62",
-        "hash": "sha256:0dlkgph6chvqrask746wjijqp62vmvrp3n2dkldr8d2mfw8mdhz2"
+        "version": "6.6.77",
+        "hash": "sha256:0km855dnimg1clilnpcz293bd2gpbycvn3llm9kyynhjrzgqj408"
     },
     "6.11": {
-        "version": "6.11.9",
-        "hash": "sha256:1d44yfk105bsf9f853f2fpnzqd0xbqn8drg1dv4ri5dxldx8lrbm"
+        "version": "6.11.11",
+        "hash": "sha256:1z2913y38clnlmhvwj49h7p4pic24s4d8np7nmd4lk7m2xz8w532"
     },
     "6.12": {
-        "version": "6.12",
-        "hash": "sha256:1sr58vsh39hdwk0z27lg14isqwn4g8m4r7a8z2rsyhkfwlmmd8mi"
+        "version": "6.12.13",
+        "hash": "sha256:1fpvfj4q2v3przxj5lkb3ra28h3g0mq9dqj4rvx4qnsmkvmdxszk"
+    },
+    "6.13": {
+        "version": "6.13.2",
+        "hash": "sha256:01g73bnif9ynccb772628sca01y8zkww8wzb39qfkfvbj20jkxnd"
     }
 }

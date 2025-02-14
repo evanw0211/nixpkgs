@@ -1,17 +1,28 @@
-{ lib, stdenv, fetchFromGitHub, pkg-config, autoreconfHook, file }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  pkg-config,
+  autoreconfHook,
+  file,
+}:
 
 stdenv.mkDerivation rec {
   pname = "exfatprogs";
-  version = "1.2.5";
+  version = "1.2.7";
 
   src = fetchFromGitHub {
     owner = pname;
     repo = pname;
     rev = version;
-    sha256 = "sha256-EqSzveqLb0Ms7D5Pczoh0BuKD1sILzAbJMnDLacokl4=";
+    sha256 = "sha256-ZMtDQ+RCTV0gUAXhsgUfRQlqcseWhbWa1szWfmgpDFk=";
   };
 
-  nativeBuildInputs = [ pkg-config autoreconfHook file ];
+  nativeBuildInputs = [
+    pkg-config
+    autoreconfHook
+    file
+  ];
 
   meta = with lib; {
     description = "exFAT filesystem userspace utilities";

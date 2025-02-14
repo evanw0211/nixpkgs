@@ -11,22 +11,22 @@
 , pkg-config
 , curl
 , libavif
+, libGL
 , libjxl
 , libpulseaudio
 , libwebp
 , libxcrypt
+, openssl
 , python3
 , qt6Packages
 , woff2
 , ffmpeg
+, fontconfig
 , simdutf
 , skia
 , nixosTests
-, AppKit
-, Cocoa
-, Foundation
-, OpenGL
 , unstableGitUpdater
+, apple-sdk_14
 }:
 
 let
@@ -49,17 +49,17 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "ladybird";
-  version = "0-unstable-2024-11-06";
+  version = "0-unstable-2025-02-04";
 
   src = fetchFromGitHub {
     owner = "LadybirdWebBrowser";
     repo = "ladybird";
-    rev = "ad1ba30b27ff2802b6e743c6b8970e4bd1309dfc";
-    hash = "sha256-vrRkUTWHm+2GTJ3axO2oPJ0gKyMSH8Reh3TjYYze/Io=";
+    rev = "b8537f760d4390120574be1a6a53ea08fbe1b943";
+    hash = "sha256-61Zw1FQFgtaYaRWfwGVwwV5AUrSCSUydXoCYCSe2STE=";
   };
 
   postPatch = ''
-    sed -i '/iconutil/d' Ladybird/CMakeLists.txt
+    sed -i '/iconutil/d' UI/CMakeLists.txt
 
     # Don't set absolute paths in RPATH
     substituteInPlace Meta/CMake/lagom_install_options.cmake \
@@ -107,23 +107,30 @@ stdenv.mkDerivation (finalAttrs: {
   buildInputs = with qt6Packages; [
     curl
     ffmpeg
+    fontconfig
     libavif
+    libGL
     libjxl
     libwebp
     libxcrypt
+    openssl
     qtbase
     qtmultimedia
     simdutf
-    skia
+    (skia.overrideAttrs (prev: {
+      gnFlags = prev.gnFlags ++ [
+        # https://github.com/LadybirdBrowser/ladybird/commit/af3d46dc06829dad65309306be5ea6fbc6a587ec
+        # https://github.com/LadybirdBrowser/ladybird/commit/4d7b7178f9d50fff97101ea18277ebc9b60e2c7c
+        # Remove when/if this gets upstreamed in skia.
+        "extra_cflags+=[\"-DSKCMS_API=__attribute__((visibility(\\\"default\\\")))\"]"
+      ];
+    }))
     woff2
   ] ++ lib.optional stdenv.hostPlatform.isLinux [
     libpulseaudio.dev
     qtwayland
   ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    AppKit
-    Cocoa
-    Foundation
-    OpenGL
+    apple-sdk_14
   ];
 
   cmakeFlags = [
@@ -135,6 +142,11 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   # FIXME: Add an option to -DENABLE_QT=ON on macOS to use Qt rather than Cocoa for the GUI
+
+  # ld: [...]/OESVertexArrayObject.cpp.o: undefined reference to symbol 'glIsVertexArrayOES'
+  # ld: [...]/libGL.so.1: error adding symbols: DSO missing from command line
+  # https://github.com/LadybirdBrowser/ladybird/issues/371#issuecomment-2616415434
+  env.NIX_LDFLAGS = "-lGL";
 
   postInstall = lib.optionalString stdenv.hostPlatform.isDarwin ''
     mkdir -p $out/Applications $out/bin
@@ -158,7 +170,5 @@ stdenv.mkDerivation (finalAttrs: {
     maintainers = with maintainers; [ fgaz ];
     platforms = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
     mainProgram = "Ladybird";
-    # use of undeclared identifier 'NSBezelStyleAccessoryBarAction'
-    broken = stdenv.hostPlatform.isDarwin;
   };
 })

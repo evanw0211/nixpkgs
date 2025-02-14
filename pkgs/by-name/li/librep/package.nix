@@ -1,13 +1,14 @@
-{ lib
-, stdenv
-, fetchurl
-, autoreconfHook
-, gdbm
-, gmp
-, libffi
-, pkg-config
-, readline
-, texinfo
+{
+  lib,
+  stdenv,
+  fetchurl,
+  autoreconfHook,
+  gdbm,
+  gmp,
+  libffi,
+  pkg-config,
+  readline,
+  texinfo,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -48,7 +49,7 @@ stdenv.mkDerivation (finalAttrs: {
       language but is also suitable for standalone scripts.
     '';
     license = lib.licenses.gpl2Plus;
-    maintainers = [ lib.maintainers.AndersonTorres ];
+    maintainers = [ ];
     platforms = lib.platforms.unix;
   };
 })

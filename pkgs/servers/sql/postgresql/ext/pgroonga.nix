@@ -1,18 +1,32 @@
-{ lib, stdenv, fetchFromGitHub, pkg-config, postgresql, msgpack-c, groonga, buildPostgresqlExtension, xxHash }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  pkg-config,
+  postgresql,
+  msgpack-c,
+  groonga,
+  buildPostgresqlExtension,
+  xxHash,
+}:
 
 buildPostgresqlExtension rec {
   pname = "pgroonga";
-  version = "3.2.4";
+  version = "4.0.0";
 
   src = fetchFromGitHub {
     owner = "pgroonga";
     repo = "pgroonga";
     rev = "${version}";
-    hash = "sha256-ZHACMsQ+hneU68Y2jOpz16Mo0jzgXKaVSCZ/qAqCDdI=";
+    hash = "sha256-9rDb7rNd/HpvdQ/lMQGCr1Hq/4TBBo9HaA2b0zmC9QY=";
   };
 
   nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ msgpack-c groonga xxHash ];
+  buildInputs = [
+    msgpack-c
+    groonga
+    xxHash
+  ];
 
   makeFlags = [
     "HAVE_XXHASH=1"

@@ -1,26 +1,28 @@
-{ lib
-, rustPlatform
-, fetchFromGitHub
-, installShellFiles
-, stdenv
-, darwin
-, gcc
-, libcxx
-, cacert
+{
+  lib,
+  rustPlatform,
+  fetchFromGitHub,
+  installShellFiles,
+  stdenv,
+  darwin,
+  gcc,
+  libcxx,
+  cacert,
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "fh";
-  version = "0.1.18";
+  version = "0.1.21";
 
   src = fetchFromGitHub {
     owner = "DeterminateSystems";
     repo = "fh";
     rev = "v${version}";
-    hash = "sha256-McfJXbr/oadsfQV7hzB6sEMy9sfXthHcjsbOiQs2+rU=";
+    hash = "sha256-EepDB25iZ8li+fGwhqOqg7XipFBishv4SvcDE2FE+is=";
   };
 
-  cargoHash = "sha256-PGXd4spD2gNyQIloVZuhWZ1VQtacXPLMCQiBekZbEp4=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-HfA0I1HZDwuTpyrWKAWcceamHw2flDA/35+bpkwFxm4=";
 
   nativeBuildInputs = [
     installShellFiles

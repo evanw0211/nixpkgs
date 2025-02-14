@@ -1,4 +1,10 @@
-{ lib, stdenv, fetchFromGitHub, rustPlatform, CoreServices }:
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  rustPlatform,
+  CoreServices,
+}:
 
 rustPlatform.buildRustPackage rec {
   pname = "mdbook-toc";
@@ -11,7 +17,8 @@ rustPlatform.buildRustPackage rec {
     sha256 = "sha256-OFNp+kFDafYbzqb7xfPTO885cAjgWfNeDvUPDKq5GJU=";
   };
 
-  cargoHash = "sha256-95W0gERjwL9r0+DOgxQu+sjSFSThWeShLAqlDQiGxFw=";
+  useFetchCargoVendor = true;
+  cargoHash = "sha256-0x/x3TRwRinQ/uLCQoRrJOE/mc2snkL/MCz76nQqb5E=";
 
   buildInputs = lib.optionals stdenv.hostPlatform.isDarwin [ CoreServices ];
 
@@ -23,4 +30,3 @@ rustPlatform.buildRustPackage rec {
     maintainers = with maintainers; [ matthiasbeyer ];
   };
 }
-

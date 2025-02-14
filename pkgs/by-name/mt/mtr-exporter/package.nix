@@ -1,14 +1,18 @@
-{ lib, buildGoModule, fetchFromGitHub }:
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+}:
 
 buildGoModule rec {
   pname = "mtr-exporter";
-  version = "0.3.0";
+  version = "0.5.0";
 
   src = fetchFromGitHub {
     owner = "mgumz";
     repo = "mtr-exporter";
     rev = version;
-    hash = "sha256-vVYdIfogXHixf1/7+uGKSxbqVmr9NeCUuNVYE07HoBw=";
+    hash = "sha256-+MomCtDMhnN9HsWguvzCKKaBl5CO0vL27OBjQfuajLI=";
   };
 
   vendorHash = null;

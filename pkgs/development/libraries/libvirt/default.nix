@@ -114,13 +114,13 @@ stdenv.mkDerivation rec {
   # NOTE: You must also bump:
   # <nixpkgs/pkgs/development/python-modules/libvirt/default.nix>
   # SysVirt in <nixpkgs/pkgs/top-level/perl-packages.nix>
-  version = "10.9.0";
+  version = "10.10.0";
 
   src = fetchFromGitLab {
     owner = pname;
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-LYQYA5UIKYs+8rSNZDymmrxuTWsgmukP5Y17lGB5UQs=";
+    hash = "sha256-czo5G+zL4NFkYehTfymgSwk3bGWcrnike2MYPzeQOPg=";
     fetchSubmodules = true;
   };
 
@@ -352,10 +352,14 @@ stdenv.mkDerivation rec {
     substituteInPlace $out/bin/virt-xml-validate \
       --replace xmllint ${libxml2}/bin/xmllint
 
+    # Enable to set some options from the corresponding NixOS module (or other
+    # places) via environment variables.
     substituteInPlace $out/libexec/libvirt-guests.sh \
       --replace 'ON_BOOT="start"'       'ON_BOOT=''${ON_BOOT:-start}' \
       --replace 'ON_SHUTDOWN="suspend"' 'ON_SHUTDOWN=''${ON_SHUTDOWN:-suspend}' \
       --replace 'PARALLEL_SHUTDOWN=0'   'PARALLEL_SHUTDOWN=''${PARALLEL_SHUTDOWN:-0}' \
+      --replace 'SHUTDOWN_TIMEOUT=300'  'SHUTDOWN_TIMEOUT=''${SHUTDOWN_TIMEOUT:-300}' \
+      --replace 'START_DELAY=0'         'START_DELAY=''${START_DELAY:-0}' \
       --replace "$out/bin"              '${gettext}/bin' \
       --replace 'lock/subsys'           'lock' \
       --replace 'gettext.sh'            'gettext.sh
