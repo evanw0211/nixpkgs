@@ -24,8 +24,8 @@ let
 in
 
 stdenv.mkDerivation rec {
-  srcVersion = "dec24a";
-  version = "20241201_a";
+  srcVersion = "apr25b";
+  version = "20250401_b";
   pname = "gildas";
 
   src = fetchurl {
@@ -35,7 +35,7 @@ stdenv.mkDerivation rec {
       "http://www.iram.fr/~gildas/dist/gildas-src-${srcVersion}.tar.xz"
       "http://www.iram.fr/~gildas/dist/archive/gildas/gildas-src-${srcVersion}.tar.xz"
     ];
-    hash = "sha256-5XKImlE5A6JjA6LLqmGc4IzaMMPoHDo8cUPmgRtnEp0=";
+    hash = "sha256-MmB50tQsSHjvPWSMw485OOXUIL8TbSkk3JC4gNmGP9E=";
   };
 
   nativeBuildInputs = [
@@ -74,7 +74,7 @@ stdenv.mkDerivation rec {
     echo "gag_doc:        $out/share/doc/" >> kernel/etc/gag.dico.lcl
   '';
 
-  userExec = "astro class greg imager mapping sic";
+  userExec = "astro class greg mapping sic";
 
   postInstall = ''
     mkdir -p $out/bin

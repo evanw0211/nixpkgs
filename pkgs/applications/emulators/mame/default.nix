@@ -30,20 +30,21 @@
   utf8proc,
   versionCheckHook,
   which,
+  wrapQtAppsHook,
   writeScript,
   zlib,
 }:
 
 stdenv.mkDerivation rec {
   pname = "mame";
-  version = "0.276";
+  version = "0.277";
   srcVersion = builtins.replaceStrings [ "." ] [ "" ] version;
 
   src = fetchFromGitHub {
     owner = "mamedev";
     repo = "mame";
     rev = "mame${srcVersion}";
-    hash = "sha256-HrEQmeCTwNXcEWcpXfLkBNnZdcZag4nB6ZN+8KKf5AE=";
+    hash = "sha256-mGKTZ8/gvGQv9oXK4pgbJk580GAAXUS16hRQu4uHhdA=";
   };
 
   outputs = [
@@ -71,8 +72,6 @@ stdenv.mkDerivation rec {
     "USE_SYSTEM_LIB_SQLITE3=1"
     "USE_SYSTEM_LIB_ZLIB=1"
   ];
-
-  dontWrapQtApps = true;
 
   # https://docs.mamedev.org/initialsetup/compilingmame.html
   buildInputs =
@@ -110,6 +109,7 @@ stdenv.mkDerivation rec {
     pkg-config
     python3
     which
+    wrapQtAppsHook
   ];
 
   patches = [
