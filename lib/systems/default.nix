@@ -97,7 +97,21 @@ let
             platform:
             final.isAndroid == platform.isAndroid
             && parse.isCompatible final.parsed.cpu platform.parsed.cpu
-            && final.parsed.kernel == platform.parsed.kernel;
+            && final.parsed.kernel == platform.parsed.kernel
+            && (
+              # Only perform this check when cpus have the same type;
+              # assume compatible cpu have all the instructions included
+              final.parsed.cpu == platform.parsed.cpu
+              ->
+                # if both have gcc.arch defined, check whether final can execute the given platform
+                (
+                  (final ? gcc.arch && platform ? gcc.arch)
+                  -> architectures.canExecute final.gcc.arch platform.gcc.arch
+                )
+                # if platform has gcc.arch defined but final doesn't, don't assume it can be executed
+                || (platform ? gcc.arch -> !(final ? gcc.arch))
+            );
+
           isCompatible =
             _:
             throw "2022-05-23: isCompatible has been removed in favor of canExecute, refer to the 22.11 changelog for details";
@@ -352,21 +366,9 @@ let
             else
               null;
 
-          # Remove before 25.05
-          androidSdkVersion =
-            if (args ? sdkVer && !args ? androidSdkVersion) then
-              throw "For android `sdkVer` has been renamed to `androidSdkVersion`"
-            else if (args ? androidSdkVersion) then
-              args.androidSdkVersion
-            else
-              null;
-          androidNdkVersion =
-            if (args ? ndkVer && !args ? androidNdkVersion) then
-              throw "For android `ndkVer` has been renamed to `androidNdkVersion`"
-            else if (args ? androidSdkVersion) then
-              args.androidNdkVersion
-            else
-              null;
+          # Handle Android SDK and NDK versions.
+          androidSdkVersion = args.androidSdkVersion or null;
+          androidNdkVersion = args.androidNdkVersion or null;
         }
         // (
           let
