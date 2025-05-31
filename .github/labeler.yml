@@ -7,7 +7,8 @@
   - any:
     - base-branch:
       - '^release-'
-      - '^staging-'
+      - '^staging-\d'
+      - '^staging-next-\d'
 
 # NOTE: bsd, darwin and cross-compilation labels are handled by ofborg
 "6.topic: agda":
@@ -38,7 +39,7 @@
     - changed-files:
       - any-glob-to-any-file:
         - .github/**/*
-        - ci/**/*
+        - ci/**/*.*
 
 "6.topic: coq":
   - any:
@@ -161,7 +162,7 @@
       - any-glob-to-any-file:
         - doc/languages-frameworks/gnome.section.md
         - nixos/modules/services/desktops/gnome/**/*
-        - nixos/modules/services/x11/desktop-managers/gnome.nix
+        - nixos/modules/services/desktop-managers/gnome.nix
         - nixos/tests/gnome-xorg.nix
         - nixos/tests/gnome.nix
         - pkgs/desktops/gnome/**/*
