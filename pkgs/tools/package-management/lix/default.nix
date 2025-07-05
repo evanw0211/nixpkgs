@@ -13,6 +13,7 @@
   editline,
   ncurses,
   clangStdenv,
+  nixpkgs-review,
   nix-direnv,
   nix-fast-build,
   colmena,
@@ -92,6 +93,10 @@ let
             stdenv = lixStdenv;
           };
 
+          nixpkgs-review = nixpkgs-review.override {
+            nix = self.lix;
+          };
+
           nix-direnv = nix-direnv.override {
             nix = self.lix;
           };
@@ -154,13 +159,13 @@ lib.makeExtensible (self: {
     attrName = "lix_2_91";
 
     lix-args = rec {
-      version = "2.91.2";
+      version = "2.91.3";
 
       src = fetchFromGitHub {
         owner = "lix-project";
         repo = "lix";
         rev = version;
-        hash = "sha256-TkRjskDnxMPugdLQE/LqIh59RYQFJLYpIuL8YZva2lM=";
+        hash = "sha256-b5d+HnPcyHz0ZJW1+LZl4qm4LGTB/TiaDFQVlVL2xpE=";
       };
 
       docCargoDeps = rustPlatform.fetchCargoVendor {
@@ -186,13 +191,13 @@ lib.makeExtensible (self: {
     attrName = "lix_2_92";
 
     lix-args = rec {
-      version = "2.92.2";
+      version = "2.92.3";
 
       src = fetchFromGitHub {
         owner = "lix-project";
         repo = "lix";
         rev = version;
-        hash = "sha256-D7YepvFkGE4K1rOkEYA1P6wGj/eFbQXb03nLdBRjjwA=";
+        hash = "sha256-iP2iUDxA99RcgQyZROs7bQw8pqxa1vFudRqjAIHg9Iw=";
       };
 
       cargoDeps = rustPlatform.fetchCargoVendor {
@@ -216,14 +221,14 @@ lib.makeExtensible (self: {
     attrName = "lix_2_93";
 
     lix-args = rec {
-      version = "2.93.1";
+      version = "2.93.2";
 
       src = fetchFromGitea {
         domain = "git.lix.systems";
         owner = "lix-project";
         repo = "lix";
         rev = version;
-        hash = "sha256-LmQhjQ7c+AOkwhvR9GFgJOy8oHW35MoQRELtrwyVnPw=";
+        hash = "sha256-J4ycLoXHPsoBoQtEXFCelL4xlq5pT8U9tNWNKm43+YI=";
       };
 
       cargoDeps = rustPlatform.fetchCargoVendor {
