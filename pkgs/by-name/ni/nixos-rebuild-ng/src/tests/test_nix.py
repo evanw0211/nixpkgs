@@ -295,9 +295,21 @@ def test_copy_closure(monkeypatch: MonkeyPatch) -> None:
 
 @patch(get_qualified_name(n.run_wrapper, n), autospec=True)
 def test_edit(mock_run: Mock, monkeypatch: MonkeyPatch, tmpdir: Path) -> None:
-    # Flake
-    flake = m.Flake.parse(f"{tmpdir}#attr")
-    n.edit(flake, {"commit_lock_file": True})
+    with monkeypatch.context() as mp:
+        default_nix = tmpdir / "default.nix"
+        default_nix.write_text("{}", encoding="utf-8")
+
+        mp.setenv("NIXOS_CONFIG", str(tmpdir))
+        mp.setenv("EDITOR", "editor")
+
+        n.edit()
+        mock_run.assert_called_with(["editor", default_nix], check=False)
+
+
+@patch(get_qualified_name(n.run_wrapper, n), autospec=True)
+def test_edit_flake(mock_run: Mock) -> None:
+    flake = m.Flake.parse(".#attr")
+    n.edit_flake(flake, {"commit_lock_file": True})
     mock_run.assert_called_with(
         [
             "nix",
@@ -306,21 +318,10 @@ def test_edit(mock_run: Mock, monkeypatch: MonkeyPatch, tmpdir: Path) -> None:
             "edit",
             "--commit-lock-file",
             "--",
-            f'{tmpdir}#nixosConfigurations."attr"',
+            '.#nixosConfigurations."attr"',
         ],
         check=False,
     )
-
-    # Classic
-    with monkeypatch.context() as mp:
-        default_nix = tmpdir / "default.nix"
-        default_nix.write_text("{}", encoding="utf-8")
-
-        mp.setenv("NIXOS_CONFIG", str(tmpdir))
-        mp.setenv("EDITOR", "editor")
-
-        n.edit(None)
-        mock_run.assert_called_with(["editor", default_nix], check=False)
 
 
 @patch(
